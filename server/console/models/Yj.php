@@ -8,6 +8,7 @@
 
 namespace console\models;
 
+use common\models\Video;
 use common\models\VideoList;
 
 class Yj{
@@ -124,15 +125,15 @@ class Yj{
 
     public function insertOrUpdateVideo($data)
     {
-        $model = new \common\models\Video();
-        $exists = \common\models\Video::findOne(['out_id' => $data['out_id']]);
+        $exists = Video::findOne(['out_id' => $data['out_id']]);
         if(!$exists){
             $data['created_at'] = time();
+            $model = new Video();
             $model->setAttributes($data);
             $model->save(false);
             $vid = $model->attributes['id'];
         }else {
-            \common\models\Video::updateAll($data, ['id' => $exists['id']]);
+            Video::updateAll($data, ['id' => $exists['id']]);
             $vid = $exists['id'];
         }
         return $vid;

@@ -133,20 +133,10 @@ class BaseController extends Controller {
 
     }
 
-    public function jsonError($errno = 1)
+    public function jsonError($msg, $errno = 1)
     {
-        if(is_array($errno)){
-            $arr = $errno;
-        }else{
-            $arr = [];
-            if(isset($this->msgArr[$errno])){
-                $arr['retCode'] = $errno;
-                $arr['retMsg'] = Yii::t('app',$this->msgArr[$errno]);
-            }else{
-                $arr['retCode'] = $errno;
-                $arr['retMsg'] = Yii::t('app','System Error');
-            }
-        }
+        $arr['retCode'] = $errno;
+        $arr['retMsg'] = $msg;
 
         return $this->encrypt(Json::encode($arr));
     }
