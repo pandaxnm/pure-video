@@ -8,18 +8,17 @@
         </div>
         <div v-else class="home-container">
             <van-pull-refresh v-model="isRefreshing" @refresh="onRefresh" class="list">
+                <van-list
+                        v-model="isLoadingMore"
+                        :finished="noMoreData"
+                        finished-text="没有更多了"
+                        @load="changePage"
+                        :offset="50"
+                >
                 <movie-card v-for="(video, index) in videos" :video="video" :key="index">
                 </movie-card>
+                </van-list>
             </van-pull-refresh>
-
-            <div class="more" v-if="totalPage > 1">
-                <div class="empty" v-if="noMoreData">
-                    <span>没有更多了</span>
-                </div>
-                <van-button v-else size="small" :loading="isLoadingMore" @click="changePage" :disabled="isLoadingMore">
-                    {{isLoadingMore ? '正在加载' : '加载更多'}}
-                </van-button>
-            </div>
         </div>
 
     </div>

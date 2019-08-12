@@ -23,9 +23,7 @@ class BaseController extends Controller {
     protected $startDoTime = 0;//开始时间
     protected $endDoTime = 0;//结束时间
     protected $doTimeLog = true;
-
     public $settings;
-    public $me;
 
     //初始化
     public function init()
@@ -36,17 +34,6 @@ class BaseController extends Controller {
     //
     public function beforeAction($action)
     {
-        header("Access-Control-Allow-Origin:*");
-        header("Access-Control-Allow-Methods:POST,GET,OPTIONS");
-        header("Access-Control-Allow-Headers:x-requested-with,content-type,authorization,token");
-        header("Access-Control-Max-Age", "2592000");
-        usleep(500000);
-
-        if(strtoupper($_SERVER['REQUEST_METHOD']) == 'OPTIONS'){
-            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-            Yii::$app->response->data = $this->jsonResult();
-            return false;
-        }
         $this->layout               = false;
         $this->enableCsrfValidation = false;
 
@@ -135,8 +122,10 @@ class BaseController extends Controller {
 
     public function jsonError($msg, $errno = 1)
     {
-        $arr['retCode'] = $errno;
-        $arr['retMsg'] = $msg;
+        $arr = [
+            'retCode' => $errno,
+            'retMsg' => $msg,
+        ];
 
         return $this->encrypt(Json::encode($arr));
     }

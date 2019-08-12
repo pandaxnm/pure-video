@@ -1,15 +1,10 @@
 import { Encrypt, Decrypt } from './aes';
 import axios from 'axios'
 import qs from 'qs';
-import common from '../utils/common';
 
 function timestamp() {
     let tmp = Date.parse( new Date() ).toString();
     return tmp.substr(0,10);
-}
-
-function getLoginToken() {
-    return  window.localStorage.getItem('loginToken');
 }
 
 const dev = (process.env.NODE_ENV === 'development');
@@ -23,7 +18,6 @@ const service = axios.create({
 
 service.interceptors.request.use(
     config => {
-        config.headers['token'] = getLoginToken();
 
         if(config.method === 'post'){
             config.data.timestamp = timestamp();

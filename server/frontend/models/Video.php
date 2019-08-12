@@ -59,7 +59,7 @@ class Video extends \yii\db\ActiveRecord{
                 'totalPage' => $totalPage,
             ];
 
-            $dep = new DbDependency(['sql'=>'SELECT count(*),MAX(updated_at) FROM '. self::tableName()]);
+            $dep = new DbDependency(['sql'=>'SELECT MAX(updated_at) FROM '. self::tableName()]);
             $cache->set($key, $data, intval($this->settings['cache_time'])*60, $dep);
         }
 
@@ -90,30 +90,21 @@ class Video extends \yii\db\ActiveRecord{
                 ->asArray()
                 ->all();
 
-            $list = ArrayHelper::index($list, null, 'xianlu');
-
-            $maxCountLineKey = 1;
-            $maxCountLine = 0;
-            foreach ($list as $k => $line) {
-                if ($count = count($line) > $maxCountLine) {
-                    $maxCountLine = $count;
-                    $maxCountLineKey = $k;
-                }
-            }
-
-            $lists = $list[$maxCountLineKey];
             $data = [
                 'detail' => $videoInfo,
-                'list' => $lists,
+                'list' => $list,
             ];
             $dep = new DbDependency(['sql'=>'SELECT updated_at,current_list_count FROM '. self::tableName()]);
             $cache->set($key, $data, intval($this->settings['cache_time'])*60, $dep);
         }
 
-        VideoModel::updateAllCounters(['views'=>1],['id' => $data['detail']['id']]);
+        $updateCounters = [
+            'views' => 1,
+        ];
         if($from == 'search'){
-            VideoModel::updateAllCounters(['search_count'=>1],['id' => $data['detail']['id']]);
+            $updateCounters['search_count'] = 1;
         }
+        VideoModel::updateAllCounters($updateCounters, ['id' => $data['detail']['id']]);
 
         return $data;
     }
@@ -179,6 +170,29 @@ class Video extends \yii\db\ActiveRecord{
             'list' => $videos,
             'totalCount' => $pages->totalCount,
             'totalPage' => $totalPage,
+        ];
+
+        return $data;
+    }
+
+    /**
+     * 获取热门搜索
+     * @param int $limit
+     * @return array
+     */
+    public function getHotList()
+    {
+        $videos = VideoModel::find()
+            ->select(['id', 'title', 'search_count'])
+            ->where(['>', 'search_count', 0])
+            ->orWhere(['>', 'views', 0])
+            ->orderBy(['search_count' => SORT_DESC])
+            ->limit(10)
+            ->asArray()
+            ->all();
+
+        $data = [
+            'list' => $videos,
         ];
 
         return $data;

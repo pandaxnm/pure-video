@@ -109,6 +109,17 @@ class VideoController extends BaseController {
         return $this->jsonResult($detail);
     }
 
+    /**
+     * 热门搜索
+     * @return string
+     */
+    public function actionHot()
+    {
+        $model = new Video();
+        $hot = $model->getHotList();
+        return $this->jsonResult($hot);
+    }
+
 
     public function actionTest()
     {

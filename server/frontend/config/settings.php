@@ -11,5 +11,6 @@ return [
         'index_pagesize' => 50, //每页条数
         'cache_enable' => 1, //开启缓存
         'cache_time' => 30, //缓存时间 分钟
+        'request_limit' => 100, //请求速率限制 次/每分钟
     ]
 ];

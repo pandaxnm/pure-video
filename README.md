@@ -71,12 +71,27 @@ return [
 
 #### 域名配置
 
+重命名 `web/src/config/index.default.js` 为 `index.js` 并修改 
+
+``` javascript
+        proxyTable: {
+            '/api': {
+                target: 'http://xxx.com/',//你的后端dev域名
+                changeOrigin: true,
+                pathRewrite: {
+                    '^/api': '/'
+                }
+            },
+        },
+```
+
 重命名 `web/src/utils/api.default.js` 为 `api.js` 并修改
 
 ``` javascript
 const dev = 'http://xxx.com'; //后端测试域名
 const prod = 'http://xxx.com'; //后端正式域名
 ```
+
 #### 跨域（Nginx配置）
 
 ```

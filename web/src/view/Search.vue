@@ -7,30 +7,49 @@
                     show-action
                     @search="onSearch"
                     @cancel="onCancel"
+                    @focus="showList = false"
             />
         </form>
-        <my-loading v-if="isLoading"></my-loading>
-        <div v-else class="search-container">
-            <div v-if="emptyData" class="empty">
-                <span>暂无数据</span>
+        <!--热门搜索-->
+        <div v-if="!showList">
+            <div v-if="hotList.length > 0">
+                <van-cell-group title="热门搜索">
+                    <van-cell clickable :to="'/detail?id='+item.id+'&from=search'" v-for="(item, index) in hotList" :key="index">
+                        <template slot="title">
+                            <van-tag type="danger">{{index+1}}</van-tag>
+                            <span style="margin-left: .5rem">{{item.title}}</span>
+                        </template>
+                    </van-cell>
+                </van-cell-group>
             </div>
-            <div id="list" v-if="videos.length > 0">
-                <div class="res">
-                    <span>共搜索到{{totalCount}}个结果</span>
-                </div>
-                <movie-card v-for="(video, index) in videos" :video="video" :key="index" from="search">
-                </movie-card>
-            </div>
-            <div class="more" v-if="totalPage > 1">
-                <div class="empty" v-if="noMoreData">
-                    <span>没有更多了</span>
-                </div>
-                <van-button v-else size="small" :loading="isLoadingMore" @click="changePage" :disabled="isLoadingMore">
-                    {{isLoadingMore ? '正在加载' : '加载更多'}}
-                </van-button>
-            </div>
-            
         </div>
+        <!--搜索结果-->
+        <div v-else>
+            <my-loading v-if="isLoading"></my-loading>
+            <div v-else class="search-container">
+                <!--搜索结果为空-->
+                <div v-if="emptyData" class="empty">
+                    <span>暂无数据</span>
+                </div>
+                <!--搜索结果列表-->
+                <div id="list" v-if="videos.length > 0">
+                    <div class="res">
+                        <span>共搜索到{{totalCount}}个结果</span>
+                    </div>
+                    <van-list
+                            v-model="isLoadingMore"
+                            :finished="noMoreData"
+                            finished-text="没有更多了"
+                            @load="changePage"
+                            :offset="50"
+                    >
+                        <movie-card v-for="(video, index) in videos" :video="video" :key="index" from="search">
+                        </movie-card>
+                    </van-list>
+                </div>
+            </div>
+        </div>
+
     </div>
 </template>
 
@@ -45,7 +64,8 @@
             MovieCard,
         },
         mounted() {
-            this.setHeader()
+            this.setHeader();
+            this.getHotSearch();
         },
         activated() {
             this.setHeader()
@@ -55,19 +75,35 @@
                 keyword: '',
                 isLoading: false,
                 isLoadingMore: false,
+                isLoadingHot: false,
                 currentPage: 1,
                 totalPage: 0,
                 totalCount: 0,
                 videos: [],
                 emptyData: false,
                 noMoreData: false,
+                showList: false,
+                hotList: [],
             }
         },
         methods: {
+            getHotSearch() {
+                this.showList = false;
+                this.isLoadingHot = true;
+                this.$get(this.API.hot, {})
+                    .then((res) => {
+                        this.isLoadingHot = false;
+                        if(res.retCode === 0){
+                            this.hotList = res.data.list;
+                        }
+                    })
+            },
             onSearch() {
                 this.isLoading = true;
                 this.emptyData = false;
                 this.noMoreData = false;
+                this.showList = true;
+                this.videos = [];
                 this.$get(this.API.search, {keyword: this.keyword}, this.currentPage)
                     .then((res) => {
                         this.isLoading = false;
@@ -103,6 +139,7 @@
                     })
             },
             onCancel() {
+                this.showList = false;
                 this.$router.replace({name: 'Home'})
             },
             setHeader() {
