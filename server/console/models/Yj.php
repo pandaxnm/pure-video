@@ -156,20 +156,6 @@ class Yj{
     }
 
 
-    public function dingMsg($msg) {
-        $params = array ('msgtype' => 'text','text' => array ('content' => $msg));
-        $url = "https://oapi.dingtalk.com/robot/send?access_token=2d91e2892c1ba59d8093d039100b24d6430d4d01e761a47a096d622cd32ccc03";
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 5);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array ('Content-Type: application/json;charset=utf-8'));
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $data = curl_exec($ch);
-        curl_close($ch);
-        return $data;
-    }
 
 
 }

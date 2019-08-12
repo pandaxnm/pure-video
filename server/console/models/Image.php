@@ -22,7 +22,8 @@ class Image{
         while(true){
             $lists = Video::find()
                 ->where(['poster_url'=>''])
-                ->orderBy(['id'=>SORT_ASC])
+//                ->orderBy(['id'=>SORT_ASC])
+                ->orderBy(['updated_at'=>SORT_DESC])
                 ->limit($pageSize)
                 ->offset(($page-1)*$pageSize)
                 ->asArray()
@@ -61,6 +62,10 @@ class Image{
      */
     private function getImage($url)
     {
+        $explode = explode('@',$url);
+        if(count($explode) > 1){
+            $url = $explode[0];
+        }
         $name = explode('/', $url);
         if(count($name) < 2){
             throw new \Exception('url有误');
@@ -76,7 +81,6 @@ class Image{
         $nextDir = date('Y').'/'.date('m').'/'.date('d').'/';
         @mkdir($dir . $nextDir,0777, true);
         $path = $dir . $nextDir . $newName;
-
         $arrContextOptions=array(
             "ssl"=>array(
                 "verify_peer"=>false,
@@ -84,14 +88,30 @@ class Image{
             ),
         );
         $imagedata = file_get_contents($url, false, stream_context_create($arrContextOptions));
-
         if($imagedata){
-            $res = file_put_contents($path, $imagedata);
-            if($res){
-                return '/images/'.$nextDir.$newName;
+            file_put_contents($path, $imagedata);
+            //如果是webp格式 需要转换
+            $imageInfo = getimagesize($url);
+            if($imageInfo['mime'] == 'image/webp'){
+                echo ' webp ';
+                $this->webp2jpg($path, $imageInfo);
             }
+            $relativePath = '/images/'.$nextDir.$newName;
+            return $relativePath;
         }
 
         throw new \Exception('未获取到图片资源');
     }
+
+
+    function webp2jpg($path, $imageInfo)
+    {
+        try{
+            return \yii\imagine\Image::thumbnail($path, $imageInfo[0], $imageInfo[1])->save($path);
+        }catch (\Exception $e){
+            echo $e->getMessage() . PHP_EOL;
+        }
+
+    }
+
 }
