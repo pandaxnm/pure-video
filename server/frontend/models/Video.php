@@ -44,7 +44,7 @@ class Video extends \yii\db\ActiveRecord{
         $cache = Yii::$app->getCache();
         $totalPage = ceil($pages->totalCount / $this->settings['index_pagesize']);
 
-        if(!$data = $cache->get($key)){
+        if(!$this->settings['cache_enable'] || !$data = $cache->get($key)){
             $videos = VideoModel::find()
                 ->orderBy($order == 'views' ? ['views'=>SORT_DESC,'updated_at' => SORT_DESC] : ['updated_at' => SORT_DESC,'created_at'=>SORT_DESC])
 //                ->orderBy(['id' => SORT_DESC])
@@ -82,7 +82,7 @@ class Video extends \yii\db\ActiveRecord{
         $key = 'video-detail-' . $id;
         $cache = Yii::$app->getCache();
 
-        if(!$data = $cache->get($key)) {
+        if(!$this->settings['cache_enable'] || !$data = $cache->get($key)) {
             //获取剧集
             $list = VideoList::find()
                 ->where(['video_id' => $id])
@@ -130,7 +130,7 @@ class Video extends \yii\db\ActiveRecord{
         $key = 'video-play-info-' . $id;
         $cache = Yii::$app->getCache();
 
-        if(!$data = $cache->get($key)){
+        if(!$this->settings['cache_enable'] || !$data = $cache->get($key)){
             $detail = $this->getVideoDetail($id);
             $lines = VideoList::find()
                 ->where(['video_id' => $id, 'list_num' => $listNum])
