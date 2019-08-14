@@ -43,7 +43,7 @@
         methods: {
             toVideoDetail() {
                 this.$router.push({name: 'Detail', query: {id: this.id,from: this.from ? this.from : ''}})
-            }
+            },
         }
     }
 </script>
@@ -53,17 +53,18 @@
         border-radius: .3rem;
         margin: .5rem .3rem;
         background-color: #fff;
+        min-height: 7rem;
     }
     .thumb {
-        width: 3.5rem;
-        height: 5.2rem;
+        width: 4rem;
+        height: 6rem;
         margin-left: .5rem;
         margin-top: .25rem;
     }
     .title {
-        font-size: .9rem;
         margin-top: .2rem;
-        margin-bottom: .2rem;
+        margin-bottom: .5rem;
+        font-size: .9rem;
         max-height: 2rem;
         font-weight: bold;
         line-height: 1rem;
@@ -78,11 +79,6 @@
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
-    }
-    .list-count {
-        position: absolute;
-        top: 2px;
-        right: 0;
     }
     .list-count span{
         padding-right: .6em;

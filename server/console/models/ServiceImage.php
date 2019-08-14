@@ -9,8 +9,9 @@ namespace console\models;
 
 use Yii;
 use common\models\Video;
+use yii\helpers\Console;
 
-class Image{
+class ServiceImage{
 
     /**
      * 图片本地化
@@ -20,9 +21,9 @@ class Image{
         $page = 1;
         $pageSize = 500;
         while(true){
+            $count = 0;
             $lists = Video::find()
                 ->where(['poster_url'=>''])
-//                ->orderBy(['id'=>SORT_ASC])
                 ->orderBy(['updated_at'=>SORT_DESC])
                 ->limit($pageSize)
                 ->offset(($page-1)*$pageSize)
@@ -43,16 +44,19 @@ class Image{
                     if(!$newUrl) {
                         continue;
                     }
-                    echo $newUrl . PHP_EOL;
+                    Console::output($newUrl);
                     Video::updateAll(['poster_url' => $newUrl], ['id'=>$v['id']]);
+                    $count++;
                 }catch (\Exception $e){
-                    echo $e->getMessage() . PHP_EOL;
+                    Console::output(Console::ansiFormat($e->getMessage(),[Console::FG_RED]));
                 }
 
             }
             $page++;
 
         }
+        Console::output(Console::ansiFormat("本地化完毕，一共下载了 {$count} 张图片",[Console::FG_GREEN]));
+
     }
 
     /**
@@ -90,28 +94,11 @@ class Image{
         $imagedata = file_get_contents($url, false, stream_context_create($arrContextOptions));
         if($imagedata){
             file_put_contents($path, $imagedata);
-            //如果是webp格式 需要转换
-            $imageInfo = getimagesize($url);
-            if($imageInfo['mime'] == 'image/webp'){
-                echo ' webp ';
-                $this->webp2jpg($path, $imageInfo);
-            }
             $relativePath = '/images/'.$nextDir.$newName;
             return $relativePath;
         }
 
         throw new \Exception('未获取到图片资源');
-    }
-
-
-    function webp2jpg($path, $imageInfo)
-    {
-        try{
-            return \yii\imagine\Image::thumbnail($path, $imageInfo[0], $imageInfo[1])->save($path);
-        }catch (\Exception $e){
-            echo $e->getMessage() . PHP_EOL;
-        }
-
     }
 
 }

@@ -8,8 +8,7 @@
 namespace frontend\controllers;
 
 use common\models\Utils;
-use console\models\Yj;
-use frontend\models\Video;
+use frontend\models\ServiceVideo;
 
 class VideoController extends BaseController {
 
@@ -30,7 +29,7 @@ class VideoController extends BaseController {
             return $this->jsonError('参数错误');
         }
         $sort = isset($params['sort']) ? $params['sort'] : '';
-        $model = new Video();
+        $model = new ServiceVideo();
         $videos = $model->getIndexVideo($sort);
 
         return $this->jsonResult($videos);
@@ -57,7 +56,7 @@ class VideoController extends BaseController {
         }
         $from = isset($params['from']) ? $params['from'] : '';
 
-        $model = new Video();
+        $model = new ServiceVideo();
         $detail = $model->getVideoDetail($params['id'], $from);
         return $this->jsonResult($detail);
     }
@@ -81,7 +80,7 @@ class VideoController extends BaseController {
             return $this->jsonError('参数错误');
         }
 
-        $model = new Video();
+        $model = new ServiceVideo();
         $detail = $model->getPlayInfo($params['id'], $params['list_num']);
         return $this->jsonResult($detail);
     }
@@ -104,7 +103,7 @@ class VideoController extends BaseController {
             return $this->jsonError('参数错误');
         }
 
-        $model = new Video();
+        $model = new ServiceVideo();
         $detail = $model->search($params['keyword']);
         return $this->jsonResult($detail);
     }
@@ -115,15 +114,8 @@ class VideoController extends BaseController {
      */
     public function actionHot()
     {
-        $model = new Video();
+        $model = new ServiceVideo();
         $hot = $model->getHotList();
         return $this->jsonResult($hot);
-    }
-
-
-    public function actionTest()
-    {
-        $model = new Yj();
-        $model->getVideo();
     }
 }

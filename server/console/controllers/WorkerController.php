@@ -7,35 +7,28 @@
  */
 namespace console\controllers;
 
-use console\models\Image;
-use console\models\Video;
-use console\models\Yj;
+use console\models\ServiceImage;
+use console\models\ServiceVideo;
 use yii\console\Controller;
 
 class WorkerController extends Controller{
-
-    public function actionGetVideos()
-    {
-        $model = new Video();
-        $model->getVideos();
-    }
 
     /**
      * 图片本地化
      */
     public function actionGetImages()
     {
-        $model = new Image();
+        $model = new ServiceImage();
         $model->getImageToLocal();
     }
 
     /**
-     * 采集资源
+     * @param bool $foreUpdate 是否采集所有资源 false则只采集最近更新的资源
      */
-    public function actionYj()
+    public function actionGetVideos($foreUpdate = false)
     {
-        $model = new Yj();
-        $model->getVideo();
+        $model = new ServiceVideo();
+        $model->getVideo($foreUpdate);
     }
 
 }

@@ -106,12 +106,18 @@ const prod = 'http://xxx.com'; //后端正式域名
 
 ``` bash
 cd server
-php yii worker/yj
+
+//只获取需要更新的影片
+php yii worker/get-videos
+
+//强制更新所有影片
+php yii worker/get-videos true
 ```
 
 #### 图片本地化脚本
 
 ``` bash
 cd server
+
 php yii worker/get-images
 ```

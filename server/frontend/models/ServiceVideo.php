@@ -8,13 +8,12 @@
 namespace frontend\models;
 
 use Yii;
-use common\models\Video as VideoModel;
+use common\models\Video;
 use common\models\VideoList;
 use yii\caching\DbDependency;
 use yii\data\Pagination;
-use yii\helpers\ArrayHelper;
 
-class Video extends \yii\db\ActiveRecord{
+class ServiceVideo extends \yii\db\ActiveRecord{
 
     private $settings;
 
@@ -33,9 +32,10 @@ class Video extends \yii\db\ActiveRecord{
         if($order != 'views' && $order != 'last'){
             $order = '';
         }
+        $query = Video::find();
+        $countQuery = clone $query;
         $pages = new Pagination([
-            'totalCount' => VideoModel::find()
-                ->count(VideoModel::tableName() . '.id'),
+            'totalCount' => $countQuery->count(Video::tableName() . '.id'),
             'pageSize' => intval($this->settings['index_pagesize']),
             'pageParam' => 'p'
         ]);
@@ -45,7 +45,7 @@ class Video extends \yii\db\ActiveRecord{
         $totalPage = ceil($pages->totalCount / $this->settings['index_pagesize']);
 
         if(!$this->settings['cache_enable'] || !$data = $cache->get($key)){
-            $videos = VideoModel::find()
+            $videos = $query
                 ->orderBy($order == 'views' ? ['views'=>SORT_DESC,'updated_at' => SORT_DESC] : ['updated_at' => SORT_DESC,'created_at'=>SORT_DESC])
 //                ->orderBy(['id' => SORT_DESC])
                 ->offset($pages->offset)
@@ -59,7 +59,7 @@ class Video extends \yii\db\ActiveRecord{
                 'totalPage' => $totalPage,
             ];
 
-            $dep = new DbDependency(['sql'=>'SELECT MAX(updated_at) FROM '. self::tableName()]);
+            $dep = new DbDependency(['sql'=>'SELECT MAX(updated_at) FROM '. Video::tableName()]);
             $cache->set($key, $data, intval($this->settings['cache_time'])*60, $dep);
         }
 
@@ -74,7 +74,7 @@ class Video extends \yii\db\ActiveRecord{
      */
     public function getVideoDetail($id, $from = '')
     {
-        $videoInfo = VideoModel::find()->where(['id' => $id])->asArray()->one();
+        $videoInfo = Video::find()->where(['id' => $id])->asArray()->one();
         if(!$videoInfo){
             return [];
         }
@@ -94,7 +94,7 @@ class Video extends \yii\db\ActiveRecord{
                 'detail' => $videoInfo,
                 'list' => $list,
             ];
-            $dep = new DbDependency(['sql'=>'SELECT updated_at,current_list_count FROM '. self::tableName()]);
+            $dep = new DbDependency(['sql'=>'SELECT updated_at,current_list_count FROM '. Video::tableName()]);
             $cache->set($key, $data, intval($this->settings['cache_time'])*60, $dep);
         }
 
@@ -104,7 +104,7 @@ class Video extends \yii\db\ActiveRecord{
         if($from == 'search'){
             $updateCounters['search_count'] = 1;
         }
-        VideoModel::updateAllCounters($updateCounters, ['id' => $data['detail']['id']]);
+        Video::updateAllCounters($updateCounters, ['id' => $data['detail']['id']]);
 
         return $data;
     }
@@ -148,19 +148,18 @@ class Video extends \yii\db\ActiveRecord{
      */
     public function search($keyword)
     {
+        $query = Video::find()->where(['like','title',$keyword]);
+        $countQuery = clone $query;
+
         $pages = new Pagination([
-            'totalCount' => VideoModel::find()
-                ->where(['like','title',$keyword])
-                ->count(VideoModel::tableName() . '.id'),
+            'totalCount' => $countQuery->count(Video::tableName() . '.id'),
             'pageSize' => intval($this->settings['index_pagesize']),
             'pageParam' => 'p'
         ]);
 
         $totalPage = ceil($pages->totalCount / $this->settings['index_pagesize']);
 
-        $videos = VideoModel::find()
-            ->where(['like', 'title', $keyword])
-            ->orderBy(['updated_at' => SORT_DESC])
+        $videos = $query->orderBy(['updated_at' => SORT_DESC])
             ->offset($pages->offset)
             ->limit($pages->limit)
             ->asArray()
@@ -182,18 +181,24 @@ class Video extends \yii\db\ActiveRecord{
      */
     public function getHotList()
     {
-        $videos = VideoModel::find()
-            ->select(['id', 'title', 'search_count'])
-            ->where(['>', 'search_count', 0])
-            ->orWhere(['>', 'views', 0])
-            ->orderBy(['search_count' => SORT_DESC])
-            ->limit(10)
-            ->asArray()
-            ->all();
+        $key = 'hot-list';
+        $cache = Yii::$app->getCache();
 
-        $data = [
-            'list' => $videos,
-        ];
+        if(!$this->settings['cache_enable'] || !$data = $cache->get($key)) {
+            $videos = Video::find()
+                ->select(['id', 'title', 'search_count'])
+                ->where(['>', 'search_count', 0])
+                ->orderBy(['search_count' => SORT_DESC])
+                ->limit(10)
+                ->asArray()
+                ->all();
+
+            $data = [
+                'list' => $videos,
+            ];
+
+            $cache->set($key, $data, intval($this->settings['cache_time'])*60);
+        }
 
         return $data;
     }

@@ -66,6 +66,7 @@
         /*text-overflow: ellipsis;*/
     }
     .note {
+        font-size: .75rem;
         margin: .7rem 0 .5rem 0;
     }
 </style>

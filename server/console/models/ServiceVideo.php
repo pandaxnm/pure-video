@@ -8,24 +8,26 @@
 
 namespace console\models;
 
+use Yii;
 use common\models\Video;
 use common\models\VideoList;
+use yii\helpers\Console;
 
-class Yj{
+class ServiceVideo{
 
-    const URL = 'http://cj.yongjiuzyw.com/inc/yjm3u8.php';
-    public static $skip = ['美女写真','伦理片','嫩妹写真','美女视频秀','街拍系列','高跟赤足视频','VIP视频秀'];
+    const URL = 'http://www.zdziyuan.com/inc/api_zuidam3u8.php';
+    public static $skip = ['福利片','伦理片'];//不抓取的影片类型
 
-    function getVideo()
+    function getVideo($foreUpdate)
     {
         $url = self::URL . "?ac=list&pg=%d";
         $p = 1;
-        $count = 1;
+        $count = 0;
 
         while (true) {
             try {
                 $newUrl = sprintf($url, $p);
-                echo $newUrl . PHP_EOL;
+                Console::output($newUrl);
                 $data1 = file_get_contents($newUrl);
                 $data1 = simplexml_load_string($data1, 'SimpleXMLElement', LIBXML_NOCDATA);
                 $xmljson1 = json_encode($data1);//将对象转换个JSON
@@ -48,10 +50,14 @@ class Yj{
                 if (!$xmlarray['list']['video']) {
                     break;
                 }
+                $lastUpdatedTime = $this->getLastUpdatedTime();
                 foreach ($xmlarray['list']['video'] as $video) {
-                    echo $video['name'] . PHP_EOL;
+                    if($video['last'] && strtotime($video['last']) <= $lastUpdatedTime && !$foreUpdate){
+                        break 2;
+                    }
+                    Console::output($video['name']);
                     $params = [
-                        'source' => 'yj',
+                        'source' => 'zd',
                         'out_id' => (int)$video['id'],
                         'updated_at' => (int)strtotime($video['last']),
                         'title' => $video['name'],
@@ -114,12 +120,13 @@ class Yj{
                     }
                 }
             } catch (\Exception $e) {
-                echo $e->getMessage() . PHP_EOL;
+                Console::output(Console::ansiFormat($e->getMessage(),[Console::FG_GREEN]));
 //                continue;
             }
             $p++;
         }
 
+        Console::output(Console::ansiFormat("抓取完毕，一共更新了 {$count} 部影片",[Console::FG_GREEN]));
     }
 
 
@@ -154,6 +161,15 @@ class Yj{
                 'id' => $listExists['id']
             ]);
         }
+    }
+
+    /**
+     * 获取最后更新时间
+     */
+    public function getLastUpdatedTime()
+    {
+        $last = Video::find()->select(['updated_at'])->orderBy(['updated_at' => SORT_DESC])->asArray()->one();
+        return $last ? $last['updated_at'] : 0;
     }
 
 
