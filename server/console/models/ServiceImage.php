@@ -20,8 +20,8 @@ class ServiceImage{
     {
         $page = 1;
         $pageSize = 500;
+        $count = 0;
         while(true){
-            $count = 0;
             $lists = Video::find()
                 ->where(['poster_url'=>''])
                 ->orderBy(['updated_at'=>SORT_DESC])
