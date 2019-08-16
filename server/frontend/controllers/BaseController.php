@@ -143,30 +143,15 @@ class BaseController extends Controller {
         if (!$encryptedData) {
             return [];
         }
+        $cryptText = base64_decode($encryptedData);
+        $decrypted =  trim(openssl_decrypt($cryptText, 'aes-128-cbc', self::ENCRYPT_KEY, OPENSSL_RAW_DATA,self::IV));
 
-        @$decrypted = mcrypt_decrypt(MCRYPT_RIJNDAEL_128, self::ENCRYPT_KEY, base64_decode($encryptedData), MCRYPT_MODE_CBC, self::IV);
-
-        $data = json_decode(trim($decrypted), true);
-
-        return $data;
+        return json_decode($decrypted, true);
     }
 
     public function encrypt($data) {
-        $check_php_version = PHP_VERSION > '5.5.0';
-
-        if($check_php_version){
-            $td = @mcrypt_module_open('rijndael-128', '', 'cbc', '');
-            if (@mcrypt_generic_init($td, self::ENCRYPT_KEY, self::IV) != -1) {
-                $encryptedcbc = @mcrypt_generic($td, $data);
-                @mcrypt_generic_deinit($td);
-                @mcrypt_module_close($td);
-            }else{
-                $encryptedcbc = '';
-            }
-        }else{
-            $encryptedcbc = @mcrypt_cbc(MCRYPT_RIJNDAEL_128, $key, $data, MCRYPT_ENCRYPT, $iv);
-        }
-        return base64_encode($encryptedcbc);
+        $cryptText = openssl_encrypt($data,"aes-128-cbc",self::ENCRYPT_KEY,OPENSSL_RAW_DATA,self::IV);
+        return base64_encode($cryptText);
     }
 
     public function microtime_float()

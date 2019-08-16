@@ -8,7 +8,7 @@ export function Decrypt(data) {
     let decryptedData = CryptoJS.AES.decrypt(data, key, {
         iv: iv,
         mode: CryptoJS.mode.CBC,
-        padding: CryptoJS.pad.ZeroPadding
+        padding: CryptoJS.pad.Pkcs7
     });
     let decryptedStr = decryptedData.toString(CryptoJS.enc.Utf8);
     return decryptedStr.toString();
@@ -16,7 +16,7 @@ export function Decrypt(data) {
 
 export function Encrypt(data) {
     let string = CryptoJS.enc.Utf8.parse(JSON.stringify(data));
-    let encrypted = CryptoJS.AES.encrypt(string, key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.ZeroPadding });
+    let encrypted = CryptoJS.AES.encrypt(string, key, { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 });
     return encrypted.toString();
 }
 

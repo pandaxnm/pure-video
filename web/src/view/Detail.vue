@@ -48,8 +48,11 @@
         updated() {
             this.setHeader();
         },
+        activated() {
+            this.setHeader();
+        },
         mounted() {
-            // this.setHeader();
+            this.setHeader();
             this.getDetail();
             //获取上次播放的集数
             this.lastWatchNum = Common.getLastWatchNum(this.$route.query.id)

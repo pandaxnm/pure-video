@@ -40,12 +40,11 @@
             this.setHeader();
             this.getVideos();
         },
-        watch: {
-            $route: {
-                handler: function() {
-                    this.setHeader();
-                },
-            }
+        updated() {
+            this.setHeader();
+        },
+        activated() {
+            this.setHeader();
         },
         data() {
             return {

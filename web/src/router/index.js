@@ -15,6 +15,7 @@ const router =  new Router({
             component: Home,
             meta: {
                 keepAlive: true,
+                title: '最近更新'
             }
         },
         {
@@ -23,6 +24,7 @@ const router =  new Router({
             component: Search,
             meta: {
                 keepAlive: true,
+                title: '搜索'
             }
         },
         {
@@ -31,6 +33,7 @@ const router =  new Router({
             component: Detail,
             meta: {
                 keepAlive: false,
+                title: '影片详情'
             }
         },
         {
@@ -39,6 +42,7 @@ const router =  new Router({
             component: Video,
             meta: {
                 keepAlive: false,
+                title: '影片播放'
             }
         },
     ]
@@ -48,6 +52,9 @@ router.beforeEach((to, from, next) => {
     const title = to.meta && to.meta.title;
     if (title) {
         document.title = 'Pure Video - ' + title;
+    }
+    if(to.name === 'Detail'){
+        to.meta.keepAlive = from.name === 'Video';
     }
 
     next();

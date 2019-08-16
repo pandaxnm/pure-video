@@ -67,8 +67,11 @@
             this.setHeader();
             this.getHotSearch();
         },
+        updated() {
+            this.setHeader();
+        },
         activated() {
-            this.setHeader()
+            this.setHeader();
         },
         data() {
             return {

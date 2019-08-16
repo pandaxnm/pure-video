@@ -65,6 +65,9 @@
         updated() {
             this.setHeader();
         },
+        activated() {
+            this.setHeader();
+        },
         destroyed() {
             //销毁播放器
             this.player.destroy();
