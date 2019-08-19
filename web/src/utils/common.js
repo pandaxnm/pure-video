@@ -1,11 +1,3 @@
-import { Encrypt, Decrypt } from "./aes";
-// import { Notify } from 'vant';
-
-//默认语言
-const defaultLang = 'zh-CN';
-//支持的语言
-const langs = ['zh-CN', 'en-US', 'ja-JP'];
-
 export default class Common {
 
     /**
@@ -31,7 +23,15 @@ export default class Common {
      * @returns {string | null}
      */
     static getLastWatchNum(id) {
-        return window.localStorage.getItem('video_'+id+'_last_watch_num')
+        return window.localStorage.getItem('video_'+id+'_last_watch_num');
+    }
+
+    static setCategories(categories) {
+        return window.localStorage.setItem('categories', JSON.stringify(categories));
+    }
+
+    static getCategories() {
+        return JSON.parse(window.localStorage.getItem('categories'));
     }
 
 

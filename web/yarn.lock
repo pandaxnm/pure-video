@@ -6027,6 +6027,10 @@ vue-loader@^13.3.0:
     vue-style-loader "^3.0.0"
     vue-template-es2015-compiler "^1.6.0"
 
+vue-qr@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.npm.taobao.org/vue-qr/download/vue-qr-2.1.0.tgz#82b642b93d86c9b8892c5e04cb0f9041d5372c75"
+
 vue-router@^3.0.1:
   version "3.0.7"
   resolved "https://registry.npm.taobao.org/vue-router/download/vue-router-3.0.7.tgz?cache=0&sync_timestamp=1562164292099&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fvue-router%2Fdownload%2Fvue-router-3.0.7.tgz#b36ca107b4acb8ff5bc4ff824584059c23fcb87b"

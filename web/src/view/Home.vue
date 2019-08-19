@@ -1,33 +1,40 @@
 <template>
-    <my-error v-if="error" :errorMsg="errorMsg" :tryAgain="getVideos"></my-error>
-    <my-loading v-else-if="isLoading"></my-loading>
-    <div v-else>
-        <div v-if="emptyData" class="empty">
-            <span>暂无数据</span>
-            <van-button @click="getVideos" size="small">刷新</van-button>
-        </div>
-        <div v-else class="home-container">
-            <van-pull-refresh v-model="isRefreshing" @refresh="onRefresh" class="list">
-                <van-list
-                        v-model="isLoadingMore"
-                        :finished="noMoreData"
-                        finished-text="没有更多了"
-                        @load="changePage"
-                        :offset="50"
-                >
-                <movie-card v-for="(video, index) in videos" :video="video" :key="index">
-                </movie-card>
-                </van-list>
-            </van-pull-refresh>
-        </div>
+    <div>
+        <van-tabs  v-if="categories" @click="changeCategory" swipeable>
+            <van-tab v-for="(category, index) in categories" :title="category.name" :key="index"></van-tab>
+        </van-tabs>
+        <my-error v-if="error" :errorMsg="errorMsg" :tryAgain="getVideos"></my-error>
+        <my-loading v-else-if="isLoading"></my-loading>
+        <div v-else>
+            <div v-if="emptyData" class="empty">
+                <span>暂无数据</span>
+                <van-button @click="getVideos" size="small">刷新</van-button>
+            </div>
+            <div v-else class="home-container">
+                <van-pull-refresh v-model="isRefreshing" @refresh="onRefresh" class="list">
+                    <van-list
+                            v-model="isLoadingMore"
+                            :finished="noMoreData"
+                            finished-text="没有更多了"
+                            @load="changePage"
+                            :offset="50"
+                    >
+                        <movie-card v-for="(video, index) in videos" :video="video" :key="index">
+                        </movie-card>
+                    </van-list>
+                </van-pull-refresh>
+            </div>
 
+        </div>
     </div>
+
 </template>
 
 <script>
     import MovieCard from "../components/MovieCard";
     import MyLoading from '../components/Loading';
     import MyError from '../components/Error';
+    import common from '../utils/common';
 
     export default {
         name: "Home",
@@ -38,6 +45,7 @@
         },
         mounted() {
             this.setHeader();
+            this.getCategories();
             this.getVideos();
         },
         updated() {
@@ -48,6 +56,8 @@
         },
         data() {
             return {
+                categories: [],
+                category: '',
                 videos: [],
                 currentPage: 1,
                 totalPage: 0,
@@ -62,6 +72,14 @@
             }
         },
         methods: {
+            getCategories() {
+                this.categories = common.getCategories();
+            },
+            changeCategory(name, title) {
+                this.currentPage = 1;
+                this.category = title;
+                this.getVideos();
+            },
             //获取列表数据
             getVideos() {
                 this.emptyData = false;
@@ -70,7 +88,11 @@
                     this.isLoading = true;
                     this.videos = [];
                 }
-                this.$get(this.API.home, {}, this.currentPage)
+                let params = {};
+                if(this.category){
+                    params.category = this.category;
+                }
+                this.$get(this.API.home, params, this.currentPage)
                     .then((res) => {
                         this.isLoading = false;
                         this.isRefreshing = false;
@@ -93,7 +115,11 @@
             changePage() {
                 this.currentPage += 1;
                 this.isLoadingMore = true;
-                this.$get(this.API.home, {}, this.currentPage)
+                let params = {};
+                if(this.category){
+                    params.category = this.category;
+                }
+                this.$get(this.API.home, params, this.currentPage)
                     .then((res) => {
                         this.isLoadingMore = false;
                         if(res.retCode === 0){
