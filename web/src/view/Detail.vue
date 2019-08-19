@@ -112,12 +112,14 @@
     }
     .list-container {
         margin-top: .5rem;
-        display: flex;
+        /* display: flex;
         flex-direction: row;
         flex-wrap: wrap;
-        justify-content: space-between;
+        justify-content: space-between; */
     }
     .list-row {
+        display: inline-block;
+        margin-right: .4rem;
         text-align: center;
     }
     .list-btn {
