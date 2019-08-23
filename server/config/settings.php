@@ -8,9 +8,9 @@
 
 return [
     'settings' => [
-        'index_pagesize' => 40, //每页条数
-        'cache_enable' => 1, //开启缓存
-        'cache_time' => 30, //缓存时间 分钟
-        'request_limit' => 5, //请求速率限制 次/每分钟
+        'index_pagesize' => getenv('s.index_pagesize'), //每页条数
+        'cache_enable' => getenv('s.cache_enable'), //开启缓存
+        'cache_time' => getenv('s.cache_time'), //缓存时间 分钟
+        'request_limit' => getenv('s.request_limit'), //请求速率限制 次/每分钟
     ]
 ];

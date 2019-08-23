@@ -8,7 +8,7 @@
 
 return [
     'class' => 'yii\redis\Connection',
-    'hostname' => '127.0.0.1',
-    'port' => 6379,
-    'database' => 0,
+    'hostname' => getenv('redis.hostname'),
+    'port' => getenv('redis.port'),
+    'database' => getenv('redis.database'),
 ];

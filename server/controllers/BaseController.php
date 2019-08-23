@@ -8,7 +8,6 @@
 
 namespace app\controllers;
 
-use app\models\Utils;
 use yii\helpers\Json;
 use yii\web\Controller;
 use yii;
@@ -69,10 +68,6 @@ class BaseController extends Controller {
 
         if (!$encryptedData) {
             return [];
-        }
-
-        if(!$this->encrypt){
-            return $encryptedData;
         }
 
         $cryptText = base64_decode($encryptedData);
