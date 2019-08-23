@@ -11,63 +11,63 @@
 			>{{item.name}}</view>
 		</scroll-view>
 		
-		<my-error v-if="error" ref="error"></my-error>
+		<common-error v-if="error" ref="error" :errorMsg="errorMsg" @tryAgain="getVideoList('refresh')"></common-error>
 		<!-- 下拉刷新组件 -->
-		<mix-pulldown-refresh v-else ref="mixPulldownRefresh" class="panel-content" :top="90" @refresh="onPulldownReresh" @setEnableScroll="setEnableScroll">
-			<!-- 内容部分 -->
-			<swiper 
-				id="swiper"
-				class="swiper-box" 
-				:duration="300" 
-				:current="tabCurrentIndex" 
-				@change="changeTab"
+		<view v-else>
+			<mix-pulldown-refresh
+				ref="mixPulldownRefresh" 
+				class="panel-content" 
+				:top="0" 
+				@refresh="onPulldownReresh"  
+				@setEnableScroll="setEnableScroll"
 			>
-				<swiper-item v-for="tabItem in tabBars" :key="tabItem.id">
-					<scroll-view 
-						class="panel-scroll-box" 
-						:scroll-y="enableScroll" 
-						@scrolltolower="loadMore"
-						>
-						<!-- 
-							* 列表 
-						-->
-						<view>
-							<view style="padding: 10px;">
-								<view  style="display:flex;flex-wrap: wrap;flex-direction: row;justify-content: space-between">
-									<view v-for="(item, index) in tabItem.videoList" :key="index" style="width:31.5%" @click="navToDetails(item)">
-										<view>
-											<image :src="item.poster" style="width: 100%;height:320upx" lazy-load mode="aspectFill"></image>
-										</view>
-										<text style="color:#303133;font-size: 26upx;padding-top: 10upx;padding-bottom: 10upx;overflow: hidden;">{{item.title}}</text>
-									</view>
-								</view>
-							</view>
-							
+				
+				<!-- 内容部分 -->
+				<swiper 
+					id="swiper"
+					class="swiper-box" 
+					:duration="300" 
+					:current="tabCurrentIndex" 
+					@change="changeTab"
+				>
+					<swiper-item v-for="tabItem in tabBars" :key="tabItem.id">
+						<scroll-view 
+							class="panel-scroll-box" 
+							:enable-back-to-top="true"
+							:scroll-y="enableScroll" 
+							@scrolltolower="loadMore"
+							:scroll-top="scrollTop"
+							@scroll="scroll"
+							>
+							<!-- 影片列表 -->
+							<video-list :list="tabItem.videoList"></video-list>
 							<!-- 上滑加载更多组件 -->
 							<mix-load-more :status="tabItem.loadMoreStatus"></mix-load-more>
-						</view>
-						
-					</scroll-view>
-				</swiper-item>
-			</swiper>
-		</mix-pulldown-refresh>
-		
+						</scroll-view>
+					</swiper-item>
+				</swiper>
+			</mix-pulldown-refresh>
+			<to-top v-if="showToTop" ref="toTop" @tap="toTop"></to-top>
+		</view>
 	</view>
 </template>
 
 <script>
 	import mixPulldownRefresh from '@/components/mix-pulldown-refresh/mix-pulldown-refresh';
 	import mixLoadMore from '@/components/mix-load-more/mix-load-more';
-	import request from '@/utils/request';
-	import Error from '@/components/error/index.vue'
+	import CommonError from '@/components/common-error/common-error.vue'
+	import ToTop from '@/components/to-top/index.vue'
+	import VideoList from './video-list.vue'
 	
 	
-	let windowWidth = 0, scrollTimer = false, tabBar;
+	let windowWidth = 0,windowHeight=0, scrollTimer = false, tabBar;
 	export default {
 		components: {
 			mixPulldownRefresh,
 			mixLoadMore,
-			'my-error': Error,
+			CommonError,
+			VideoList,
+			ToTop
 		},
 		data() {
 			return {
@@ -75,10 +75,13 @@
 				errorMsg: false,
 				tabCurrentIndex: 0, //当前选项卡索引
 				scrollLeft: 0, //顶部选项卡左滑距离
-				enableScroll: true,
 				tabBars: [],
-				videos: [],
-				currentPage: 1,
+				enableScroll: true,
+				scrollTop: 0,
+				old: {
+					scrollTop: 0
+				},
+				showToTop: false,
 			}
 		},
 		//跳转到搜索
@@ -93,29 +96,48 @@
 		async onLoad() {
 			// 获取屏幕宽度
 			windowWidth = uni.getSystemInfoSync().windowWidth;
+			windowHeight = uni.getSystemInfoSync().windowHeight;
 			this.loadTabbars();
 		},
 		onReady(){
 			
 		},
 		methods: {
+			scroll: function(e) {
+				this.old.scrollTop = e.detail.scrollTop
+				if(e.target.scrollTop > windowHeight){
+					this.showToTop = true;
+				}else{
+					this.showToTop = false;
+				}
+			},
+			toTop: function(e) {
+				this.showToTop = false;
+				// 解决view层不同步的问题
+				this.scrollTop = this.old.scrollTop
+				this.$nextTick(function() {
+					this.scrollTop = 0
+				});
+			},
+			//设置scroll-view是否允许滚动
+			setEnableScroll(enable){
+				if(this.enableScroll !== enable){
+					this.enableScroll = enable;
+				}
+			},
 			//错误提示
 			setError(msg) {
 				this.error = true;
-				this.$refs.error.setError(msg, () => this.loadTabbars());
+				this.errorMsg = msg;
 			},
 			
 			//获取tabbar
 			loadTabbars(){
 				this.error = false;
-				const instance = new request();
-				instance.get({
-					url: '/video/categories', 
-					data: {},
-					})
-				.then((res) => {
-					if(res.data.retCode === 0){
-						let tabList = res.data.data;
+                this.$get('/video/categories')
+                    .then((res) => {
+					if(res.retCode === 0){
+						let tabList = res.data;
 						tabList.forEach(item=>{
 							item.videoList = [];
 							item.loadMoreStatus = 0;  //加载更多 0加载前，1加载中，2没有更多了
@@ -127,7 +149,7 @@
 						this.tabBars = tabList;
 						this.getVideoList('add')
 					}else{
-						this.setError(res.data.retMsg)
+						this.setError(res.retMsg)
 					}
 				}).catch(err => {
                     this.setError(err)
@@ -137,6 +159,7 @@
 			//获取影片列表
 			getVideoList(type){
 				this.error = false;
+				uni.hideToast();
 				let tabItem = this.tabBars[this.tabCurrentIndex];
 				//type add 加载更多 refresh下拉刷新
 				if(type === 'add'){
@@ -149,27 +172,27 @@
 					tabItem.refreshing = true;
 					tabItem.page = 1;
 				}
-				let url = '/video/index?category='+tabItem.name+'&p='+tabItem.page;
-				let data = {}
+				let url = '/video/index';
+				let data = {
+					p: tabItem.page,
+					category: tabItem.name
+				}
 				
-				const instance = new request();
-                instance.get({
-					url: url, 
-					data: data,
-				})
+				this.$get('/video/index', data, tabItem.page)
 				.then((res) => {
-                    if(res.data.retCode === 0){
+					console.log(res);
+                    if(res.retCode === 0){
                         if(type === 'refresh'){
                             tabItem.videoList = []; //刷新前清空数组
                         }
-                        tabItem.totalPage = res.data.data.totalPage;
-                        tabItem.totalCount = res.data.data.totalCount;
-                        res.data.data.list.forEach(item=>{
+                        tabItem.totalPage = res.data.totalPage;
+                        tabItem.totalCount = res.data.totalCount;
+                        res.data.list.forEach(item=>{
                             tabItem.videoList.push(item);
                         })
                         //上滑加载 处理状态
                         if(type === 'add'){
-                            if(res.data.data.list.length === 0 || tabItem.totalPage == 1){
+                            if(res.data.list.length === 0 || tabItem.totalPage == 1){
                                 tabItem.loadMoreStatus = 2;
                                 return;
                             }else{
@@ -184,9 +207,14 @@
                             tabItem.refreshing = false;
                             // #endif
                             tabItem.loadMoreStatus = 0;
+							uni.showToast({
+								title: "刷新成功",
+								position:'bottom'
+							})
                         }
                     }else{
-						this.setError(res.data.retMsg)
+						console.log('请求出错: '+res.retMsg)
+						this.setError(res.retMsg)
 					
 					}
 				}).catch(err => {
@@ -215,13 +243,6 @@
 			loadMore(){
 				this.getVideoList('add');
 			},
-			//设置scroll-view是否允许滚动
-			setEnableScroll(enable){
-				if(this.enableScroll !== enable){
-					this.enableScroll = enable;
-				}
-			},
-
 			//tab切换
 			async changeTab(e){
 				if(scrollTimer){
@@ -272,7 +293,7 @@
 						this.getVideoList('add');
 						tabItem.loaded = true;
 					}
-				}, 300)
+				}, 0)
 				
 			},
 			//获得元素的size
@@ -350,136 +371,17 @@
 			border-bottom: 2px solid #000;
 		}
 	}
-	
-	/**
-	 * 新闻列表 直接拿的nvue样式修改，,
-	 * 一共需要修改不到10行代码, 另外px需要直接修改为upx，只有单位不一样，计算都是一样的
-	 * 吐槽：难道不能在编译的时候把nuve中的upx转为px? 这样就不用修改单位了
-	 */
-	.video-wrapper{
-		width: 100%;
-		height: 440upx;
-		.video{
-			width: 100%;
-		}
+	.title {
+		color:#303133;
+		font-size: 26upx;
+		padding-top: 10upx;
+		padding-bottom: 10upx;
+		overflow: hidden;
 	}
 	
 	view{
 		display:flex;
 		flex-direction: column;
 	}
-	.img{
-		width: 100%;
-		height: 100%;
-	}
-	.news-item{
-		position:relative;
-	}
-	/* 修改结束 */
-	
-	/* 新闻列表  emmm 仅供参考 */
-	.news-item{
-		width: 200upx;
-		padding: 24upx 30upx;
-		border-bottom-width: 1px;
-		border-color: #eee;
-		background-color: #fff;
-	}
-	.title{
-		font-size: 32upx;
-		color: #303133;
-		line-height: 46upx;
-	}
-	.bot{
-		flex-direction: row;
-	}
-	.author{
-		font-size: 26upx;
-		color: #aaa;
-	}
-	.time{
-		font-size: 26upx;
-		color: #aaa;
-		margin-left: 20upx;
-	}
-	.img-list{
-		flex-shrink: 0;
-		flex-direction: row;
-		background-color: #fff;
-		width: 220upx;
-		height: 140upx;
-	}
-	.img-wrapper{
-		flex: 1;
-		flex-direction: row;
-		height: 140upx;
-		position: relative;
-		overflow: hidden;
-	}
-	.img{
-		flex: 1;
-	}
-	.img-empty{
-		height: 20upx;
-	}
-	
-	/* 图在左 */
-	.img-list1{
-		position:absolute;
-		left: 30upx;
-		top: 24upx;
-	}
-	.title1{
-		padding-left: 240upx; 
-	}
-	.bot1{
-		padding-left: 240upx; 
-		margin-top: 20upx;
-	}
-	/* 图在右 */
-	.img-list2{
-		position:absolute;
-		right: 30upx;
-		top: 24upx;
-	}
-	.title2{
-		padding-right: 210upx; 
-	}
-	.bot2{
-		margin-top: 20upx;
-	}
-	/* 底部3图 */
-	.img-list3{
-		width: 700upx;
-		margin: 16upx 0upx;
-	}
-	.img-wrapper3{
-		margin-right: 4upx;
-	}
-	/* 底部大图 */
-	.img-list-single{
-		width: 690upx;
-		height: 240upx;
-		margin: 16upx 0upx;
-	}
-	.img-wrapper-single{
-		height: 240upx;
-		margin-right: 0upx;
-	}
-	
-	.video-tip{
-		position: absolute;
-		left: 0;
-		top: 0;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 100%;
-		height: 100%;
-		background-color: rgba(0,0,0,.3);
-	}
-	.video-tip-icon{
-		width: 60upx;
-		height:60upx; 
-	}
+
 </style>

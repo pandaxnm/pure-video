@@ -1,77 +1,86 @@
-import request from '../components/request/js/index'
+import { Encrypt, Decrypt } from './aes';
+import axios from '@/js_sdk/gangdiedao-uni-axios'
+import qs from 'qs';
 import config from '../config'
+
+function timestamp() {
+    let tmp = Date.parse( new Date() ).toString();
+    return tmp.substr(0,10);
+}
 
 const dev = (process.env.NODE_ENV === 'development');
 
-function timestamp() {
-	let tmp = Date.parse( new Date() ).toString();
-	return tmp.substr(0,10);
+const service = axios.create({
+    baseURL: config.baseUrl,
+    // withCredentials: true,
+    timeout: 10000
+});
+
+service.interceptors.request.use(
+    config => {
+
+        if(config.method === 'post'){
+            config.data.timestamp = timestamp();
+            dev && console.log('未加密参数：',config.data);
+            let encrypt = {encryptedData: Encrypt(config.data)};
+            config.data = qs.stringify(encrypt)
+        }else{
+            config.params.timestamp = timestamp();
+            dev && console.log('未加密参数：',config.params);
+            let encrypt = {encryptedData:Encrypt(config.params)};
+            if(config.params.p) {
+                encrypt.p = config.params.p;
+            }
+            config.params = encrypt;
+        }
+        return config
+    }
+);
+
+service.interceptors.response.use(
+
+    response => {
+		dev && console.log('请求地址：',response.config.url);
+        const res = JSON.parse(Decrypt(response.data));
+        dev && console.log('返回值解密：',res);
+        return res
+    },
+    error => {
+        return Promise.reject(error)
+    }
+);
+
+export function get(url, data = {}, p = null) {
+    if(p) {
+        data.p = p
+    }
+
+    return new Promise((resolve,reject) => {
+        service.get(url, {
+            params: data,
+        })
+            .then((response) => {
+                return response;
+            })
+            .then(response => {
+                resolve(response);
+            },err => {
+                reject(err)
+            })
+    })
 }
 
-// 设置全局配置
-request.prototype.setConfig({
-	url: config.baseUrl,
-    header: {
-        isApp: '1'
-    }
-});
 
-// 全局拦截器
-request.prototype.addGlobalInterce({
-    // 请求拦截器 (例如配置token)
-    // return false或者不return值, 都不会发送请求
-    request (config) {
-		
-		if(config.data === undefined){
-			config.data = {};
-		}
-		config.data.timestamp = timestamp();//给请求带上时间戳
-        dev && console.log('url:', config.url);
-        dev && console.log('data:', config.data);
-
-        return config;
-        // return false;
-    },
-
-    // 响应拦截器 (例如根据状态码拦截数据)
-    // return false或者不return值 则都不会返回值
-    // return Promise.reject('xxxxx')，主动抛出错误
-    response (res) {
-        let firstCodeNum = String(res.statusCode).substr(0, 1);
-        // dev && console.log('📫 is global response interceptors', res)
-
-        // 2xx
-        if (firstCodeNum === '2') {
-            // do something
-            // res.data.data.text = 'addGlobalInterce response'
-
-            return res;
-        }
-
-        // 3xx
-        if (firstCodeNum === '3') {
-            // do something
-            return res;
-        }
-
-        // 4xx or 5xx
-        if (firstCodeNum === '4' || firstCodeNum === '5') {
-            // do something
-            console.log('is 4xx or 5xx')
-            return Promise.reject('nooooo')
-        }
-
-        // 停止发送请求 request.stop()
-        if (JSON.stringify(res) === '{"errMsg":"request:fail abort"}') {
-            // do something
-            // return Promise.reject('xxxxxxxxx');
-            return false;
-        }
-
-        // return Promise.reject(res)
-        return res;
-    }
-});
-
-export default request;
-
+export function post(url,data = {}){
+    return new Promise((resolve,reject) => {
+        service.post(url, data)
+            .then((response) => {
+                return response;
+            })
+            .then(response => {
+                resolve(response);
+            },err => {
+                reject(err)
+            })
+    })
+}

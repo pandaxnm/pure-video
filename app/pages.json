@@ -27,12 +27,13 @@
 							"borderRadius": "6px",
 							"placeholder": "请输入影片关键字",
 							"autoFocus": true
-						},
-						"buttons": [{
-							"text": "取消",
-							"fontSize": "14",
-							"width": "auto"
-						}]
+						}
+						//,
+						// "buttons": [{
+						// 	"text": "取消",
+						// 	"fontSize": "14",
+						// 	"width": "auto"
+						// }]
 					}
 				}
 			}
