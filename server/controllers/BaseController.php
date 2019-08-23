@@ -14,9 +14,6 @@ use yii;
 
 class BaseController extends Controller {
 
-    const ENCRYPT_KEY = '1234123412ABCDEF';
-    const IV = 'ABCDEF1234123412';
-
     public $settings;
 
     public function init()
@@ -71,13 +68,13 @@ class BaseController extends Controller {
         }
 
         $cryptText = base64_decode($encryptedData);
-        $decrypted =  trim(openssl_decrypt($cryptText, 'aes-128-cbc', self::ENCRYPT_KEY, OPENSSL_RAW_DATA,self::IV));
+        $decrypted =  trim(openssl_decrypt($cryptText, 'aes-128-cbc', $this->settings['key'], OPENSSL_RAW_DATA,$this->settings['iv']));
 
         return json_decode($decrypted, true);
     }
 
     private function encrypt($data) {
-        $cryptText = openssl_encrypt($data,"aes-128-cbc",self::ENCRYPT_KEY,OPENSSL_RAW_DATA,self::IV);
+        $cryptText = openssl_encrypt($data,"aes-128-cbc",$this->settings['key'],OPENSSL_RAW_DATA,$this->settings['iv']);
         return base64_encode($cryptText);
     }
 

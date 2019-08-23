@@ -8,6 +8,8 @@
 
 return [
     'settings' => [
+        'key' => getenv('s.aes_key'), //aes key 需与前端一致
+        'iv' => getenv('s.aes_iv'), //aes iv 需与前端一致
         'index_pagesize' => getenv('s.index_pagesize'), //每页条数
         'cache_enable' => getenv('s.cache_enable'), //开启缓存
         'cache_time' => getenv('s.cache_time'), //缓存时间 分钟

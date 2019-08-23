@@ -61,6 +61,20 @@ composer install
 
 #### 域名配置
 
+重命名 `web/src/config/index.default.js` 为 `index.js` 并修改 
+
+``` javascript
+        proxyTable: {
+            '/api': {
+                target: 'http://xxx.com/',//你的后端dev域名
+                changeOrigin: true,
+                pathRewrite: {
+                    '^/api': '/'
+                }
+            },
+        },
+```
+
 重命名 `web/.env.default` 为 `.env` 并配置其中的内容
 
 #### 跨域（Nginx配置）
@@ -92,5 +106,3 @@ cd server
 
 php yii worker/get-images
 ```
-
-### APP
