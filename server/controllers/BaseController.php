@@ -19,7 +19,6 @@ class BaseController extends Controller {
     const IV = 'ABCDEF1234123412';
 
     public $settings;
-    public $encrypt = true; //数据是否加密
 
     public function init()
     {
@@ -29,9 +28,6 @@ class BaseController extends Controller {
 
     public function beforeAction($action)
     {
-        if(isset($_SERVER['HTTP_ISAPP']) && $_SERVER['HTTP_ISAPP']){
-            $this->encrypt = false;
-        }
         $this->layout               = false;
         $this->enableCsrfValidation = false;
         return true;
@@ -48,7 +44,7 @@ class BaseController extends Controller {
             $arr[$key] = $value;
         }
 
-        return $this->encrypt ? $this->encrypt(Json::encode($arr)) : Json::encode($arr);
+        return $this->encrypt(Json::encode($arr));
     }
 
     public function jsonError($msg, $errno = 1)
@@ -58,7 +54,7 @@ class BaseController extends Controller {
             'retMsg' => $msg,
         ];
 
-        return $this->encrypt ? $this->encrypt(Json::encode($arr)) : Json::encode($arr);
+        return $this->encrypt(Json::encode($arr));
     }
 
 
@@ -66,9 +62,9 @@ class BaseController extends Controller {
     {
         $request = Yii::$app->getRequest();
         if($method == 'post'){
-            $encryptedData = $this->encrypt ? $request->post('encryptedData') : $request->post();
+            $encryptedData = $request->post('encryptedData');
         }else{
-            $encryptedData = $this->encrypt ? $request->get('encryptedData') : $request->get();
+            $encryptedData = $request->get('encryptedData');
         }
 
         if (!$encryptedData) {
