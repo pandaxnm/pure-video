@@ -34,17 +34,7 @@ composer install
 
 #### 数据库配置
 
-重命名 `server/common/config/db.default.php` 为 `db.php` 并修改
-
-``` php
-return [
-    //...
-    'dsn' => 'mysql:host=localhost;dbname=YOUR_DATABASE_NAME',
-    'username' => 'YOUR_USERNAME',
-    'password' => 'YOUR_PASSWORD',
-    //...
-];
-```
+重命名 `server/.env.default` 为 `.env` 并配置其中的内容
 
 #### NGINX
 
@@ -71,26 +61,7 @@ return [
 
 #### 域名配置
 
-重命名 `web/src/config/index.default.js` 为 `index.js` 并修改 
-
-``` javascript
-        proxyTable: {
-            '/api': {
-                target: 'http://xxx.com/',//你的后端dev域名
-                changeOrigin: true,
-                pathRewrite: {
-                    '^/api': '/'
-                }
-            },
-        },
-```
-
-重命名 `web/src/utils/api.default.js` 为 `api.js` 并修改
-
-``` javascript
-const dev = 'http://xxx.com'; //后端测试域名
-const prod = 'http://xxx.com'; //后端正式域名
-```
+重命名 `web/.env.default` 为 `.env` 并配置其中的内容
 
 #### 跨域（Nginx配置）
 
@@ -121,3 +92,5 @@ cd server
 
 php yii worker/get-images
 ```
+
+### APP
