@@ -89,7 +89,7 @@ class ServiceVideo{
                                     $listParams = [
                                         'video_id' => (int)$vid,
                                         'updated_at' => (int)strtotime($video['last']),
-                                        'list_num' => $listData[0],
+                                        'list_num' => str_replace( '修正', '', $listData[0]),
                                         'download_url' => '',
                                         'web_url' => $listData[1],
                                         'play_url' => $listData[1],
@@ -107,7 +107,7 @@ class ServiceVideo{
                                 $listParams = [
                                     'video_id' => (int)$vid,
                                     'updated_at' => (int)strtotime($video['last']),
-                                    'list_num' => $listData[0],
+                                    'list_num' => str_replace( '修正', '', $listData[0]),
                                     'download_url' => '',
                                     'web_url' => $listData[1],
                                     'play_url' => $listData[1],
