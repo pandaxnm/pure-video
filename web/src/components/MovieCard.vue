@@ -9,7 +9,8 @@
 
         >
             <div slot="thumb">
-                <img class="thumb" v-lazy="video.poster_url ? API.domain + video.poster_url : video.poster"/>
+                <!--<img class="thumb" v-lazy="video.poster_url ? API.domain + video.poster_url : video.poster"/>-->
+                <img class="thumb" v-lazy="video.poster"/>
             </div>
             <div slot="title">
                 <p class="title">{{video.title}}</p>

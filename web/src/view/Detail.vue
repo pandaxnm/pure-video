@@ -92,12 +92,23 @@
                 })
             },
             setHeader() {
-                this.$store.commit('showHeader');
-                this.$store.commit('showBack');
-                this.$store.commit('setTitle','影片详情');
-                this.$store.commit('setLeftText','');
-                this.$store.commit('setRightText','');
-                this.$store.commit('setClickLeft',() => {this.$router.go(-1)});
+                let data = {
+                    title: '影片详情',
+                    showBack: true,
+                    leftText: '',
+                    clickLeft: () => {this.$router.go(-1)},
+                    rightText: '',
+                    clickRight: '',
+                }
+                this.$emit('changeHeader', data)
+
+
+                // this.$store.commit('showHeader');
+                // this.$store.commit('showBack');
+                // this.$store.commit('setTitle','影片详情');
+                // this.$store.commit('setLeftText','');
+                // this.$store.commit('setRightText','');
+                // this.$store.commit('setClickLeft',() => {this.$router.go(-1)});
             },
         }
     }

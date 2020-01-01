@@ -8,21 +8,15 @@
     </div>
     <div v-else>
       <my-header
-              v-if="isShowHeader"
-              :showBack="isShowBack"
-              :title="getTitle"
-              :leftText="getLeftText"
-              :rightText="getRightText"
-              :clickLeft="getClickLeft"
-              :clickRight="getClickRight"
-              style="display: block"
+          :data="headerData"
+          style="display: block"
       />
 
       <div id="main">
         <keep-alive>
-          <router-view v-if="this.$route.meta.keepAlive"></router-view>
+          <router-view v-if="this.$route.meta.keepAlive" @changeHeader="changeHeader"></router-view>
         </keep-alive>
-        <router-view v-if="!this.$route.meta.keepAlive"></router-view>
+        <router-view v-if="!this.$route.meta.keepAlive" @changeHeader="changeHeader"></router-view>
 
         <back-to-top bottom="50px" right="20px">
           <van-button size="mini" round plain type="danger" style="width: 2rem">
@@ -50,6 +44,7 @@
             return {
                 isPc: false,
                 currentUrl: '',
+                headerData: {}
             }
         },
         mounted() {
@@ -57,43 +52,11 @@
             if(common.isPc()){
                 this.isPc = true;
             }
-            this.getCategories();
         },
         methods: {
-            getCategories() {
-                this.$get(this.API.categories, {})
-                    .then((res) => {
-                        if(res.retCode === 0){
-                            common.setCategories(res.data)
-                        }
-                    })
+            changeHeader(data) {
+                this.headerData = data;
             }
-        },
-        computed: {
-            isShowHeader(){
-                return this.$store.getters.isShowHeader;
-            },
-            isShowFooter(){
-                return this.$store.getters.isShowFooter;
-            },
-            isShowBack(){
-                return this.$store.getters.isShowBack;
-            },
-            getLeftText(){
-                return this.$store.getters.getLeftText;
-            },
-            getRightText(){
-                return this.$store.getters.getRightText;
-            },
-            getTitle(){
-                return this.$store.getters.getTitle;
-            },
-            getClickLeft(){
-                return this.$store.getters.getClickLeft;
-            },
-            getClickRight(){
-                return this.$store.getters.getClickRight;
-            },
         },
     }
 </script>

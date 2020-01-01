@@ -143,15 +143,18 @@
             },
             onCancel() {
                 this.showList = false;
-                this.$router.replace({name: 'Home'})
+                this.$router.go(-1)
             },
             setHeader() {
-                this.$store.commit('showHeader');
-                this.$store.commit('hideBack');
-                this.$store.commit('setTitle','搜索');
-                this.$store.commit('setLeftText','');
-                this.$store.commit('setRightText','');
-                this.$store.commit('setClickRight','');
+                let data = {
+                    title: '搜索',
+                    showBack: true,
+                    leftText: '',
+                    clickLeft: () => {this.$router.go(-1)},
+                    rightText: '',
+                    clickRight: '',
+                }
+                this.$emit('changeHeader', data)
             },
         }
     }

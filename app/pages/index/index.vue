@@ -33,7 +33,7 @@
 					<swiper-item v-for="tabItem in tabBars" :key="tabItem.id">
 						<scroll-view 
 							class="panel-scroll-box" 
-							:enable-back-to-top="true"
+							enableBackToTop="true"
 							:scroll-y="enableScroll" 
 							@scrolltolower="loadMore"
 							:scroll-top="scrollTop"

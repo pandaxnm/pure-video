@@ -2,13 +2,11 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import store from './store'
 import Api from './utils/api'
 import Vant from 'vant';
 import 'vant/lib/index.css';
 import { Lazyload } from 'vant';
 import {post, get} from './utils/Http';
-import common from './utils/common';
 import BackToTop from 'vue-backtotop'
 window.Hls = require('hls.js');
 
@@ -28,7 +26,6 @@ Vue.prototype.$get = get;
 new Vue({
   el: '#app',
   router,
-  store,
   components: { App },
   template: '<App/>'
 })

@@ -56,10 +56,10 @@
             MyError,
         },
         mounted() {
+            this.setHeader();
             this.player = this.$refs.player.dp;
             this.videoId = this.$route.query.id;
             this.lastWatchNum = Common.getLastWatchNum(this.$route.query.id)
-            this.setHeader();
             this.getPlayInfo();
         },
         updated() {
@@ -140,12 +140,15 @@
                 this.changeLine(play_url)
             },
             setHeader() {
-                this.$store.commit('showHeader');
-                this.$store.commit('showBack');
-                this.$store.commit('setTitle','视频播放-'+this.lastWatchNum);
-                this.$store.commit('setLeftText','');
-                this.$store.commit('setRightText','');
-                this.$store.commit('setClickRight','');
+                let data = {
+                    title: '视频播放',
+                    showBack: true,
+                    leftText: '',
+                    clickLeft: () => {this.$router.go(-1)},
+                    rightText: '',
+                    clickRight: '',
+                }
+                this.$emit('changeHeader', data)
             },
         }
     }

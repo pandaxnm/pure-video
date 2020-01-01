@@ -1,31 +1,30 @@
 <template>
     <div>
-        <van-tabs  v-if="categories" @click="changeCategory" swipeable>
-            <van-tab v-for="(category, index) in categories" :title="category.name" :key="index"></van-tab>
-        </van-tabs>
-        <my-error v-if="error" :errorMsg="errorMsg" :tryAgain="getVideos"></my-error>
+        <my-error v-if="error" :errorMsg="errorMsg" :tryAgain="getCategories"></my-error>
         <my-loading v-else-if="isLoading"></my-loading>
-        <div v-else>
-            <div v-if="emptyData" class="empty">
-                <span>暂无数据</span>
-                <van-button @click="getVideos" size="small">刷新</van-button>
-            </div>
-            <div v-else class="home-container">
-                <van-pull-refresh v-model="isRefreshing" @refresh="onRefresh" class="list">
-                    <van-list
-                            v-model="isLoadingMore"
-                            :finished="noMoreData"
-                            finished-text="没有更多了"
-                            @load="changePage"
-                            :offset="50"
-                    >
-                        <movie-card v-for="(video, index) in videos" :video="video" :key="index">
-                        </movie-card>
-                    </van-list>
-                </van-pull-refresh>
-            </div>
-
-        </div>
+        <van-tabs v-else @click="getVideos" swipeable v-model="tabBarIndex" animated>
+            <van-tab v-for="(category, index) in categories" :title="category.name" :key="index">
+                <my-error v-if="category.error" :errorMsg="category.errorMsg" :tryAgain="getVideos"></my-error>
+                <my-loading v-else-if="category.isLoading"></my-loading>
+                <div v-else-if="category.emptyData" class="empty">
+                    <span>暂无数据</span>
+                    <van-button @click="getVideos" size="small">刷新</van-button>
+                </div>
+                <div v-else class="home-container">
+                    <van-pull-refresh v-model="category.isRefreshing" @refresh="onRefresh" class="list">
+                        <van-list
+                                v-model="category.isLoadingMore"
+                                :finished="category.noMoreData"
+                                finished-text="没有更多了"
+                                @load="loadMore"
+                        >
+                            <movie-card v-for="(video, index) in category.list" :video="video" :key="index">
+                            </movie-card>
+                        </van-list>
+                    </van-pull-refresh>
+                </div>
+            </van-tab>
+        </van-tabs>
     </div>
 
 </template>
@@ -44,9 +43,7 @@
             MyError
         },
         mounted() {
-            this.setHeader();
-            this.getCategories();
-            this.getVideos();
+            this.init();
         },
         updated() {
             this.setHeader();
@@ -56,92 +53,140 @@
         },
         data() {
             return {
+                tabBarIndex: 0,
                 categories: [],
                 category: '',
-                videos: [],
-                currentPage: 1,
-                totalPage: 0,
-                totalCount: 0,
                 isLoading: false,
-                isRefreshing: false,
-                isLoadingMore: false,
-                emptyData: false,
-                noMoreData: false,
                 error: false,
                 errorMsg: '',
             }
         },
         methods: {
-            getCategories() {
-                this.categories = common.getCategories();
+            init() {
+                this.setHeader();
+                this.getCategories();
             },
-            changeCategory(name, title) {
-                this.currentPage = 1;
-                this.category = title;
-                this.getVideos();
+            getCategories() {
+                this.error = false;
+                this.errorMsg = '';
+                this.isLoading = true;
+                this.$get(this.API.categories, {})
+                .then((res) => {
+                    if(res.retCode === 0){
+                        let tabList = res.data;
+                        tabList.forEach(item=>{
+                            item.list = [];
+                            item.emptyData = false;
+                            item.noMoreData = false;
+                            item.isLoading = false;
+                            item.isRefreshing = false;
+                            item.isLoadingMore = false;
+                            item.currentPage = 1;
+                            item.totalPage = 0;
+                            item.totalCount = 0;
+                            item.error = false;
+                            item.errorMsg = '';
+                        })
+                        this.categories = tabList;
+                        this.isLoading = false;
+                        this.getVideos()
+                    }else{
+                        this.error = true;
+                        this.errorMsg = res.retMsg;
+                    }
+                }).catch(e => {
+                    this.error = true;
+                    this.errorMsg = e;
+                })
             },
             //获取列表数据
-            getVideos() {
-                this.emptyData = false;
-                this.noMoreData = false;
-                if(!this.isRefreshing){
-                    this.isLoading = true;
-                    this.videos = [];
+            getVideos(type = 'init') {
+                let tabItem = this.categories[this.tabBarIndex];
+                if(type === 'init' && tabItem.list.length > 0){
+                    return;
                 }
-                let params = {};
-                if(this.category){
-                    params.category = this.category;
+                tabItem.error = false;
+                tabItem.errorMsg = '';
+                tabItem.emptyData = false;
+                tabItem.noMoreData = false;
+                if(type === 'init'){
+                    tabItem.isLoading = true;
+                    tabItem.currentPage = 1;
                 }
-                this.$get(this.API.home, params, this.currentPage)
+                if(type === 'refresh'){
+                    tabItem.isRefreshing = true;
+                    tabItem.currentPage = 1;
+                }
+                if(type === 'add'){
+                    tabItem.isLoadingMore = true;
+                    tabItem.currentPage += 1;
+                }
+
+                let params = {
+                    category: tabItem.name
+                };
+                this.$get(this.API.home, params, tabItem.currentPage)
                     .then((res) => {
-                        this.isLoading = false;
-                        this.isRefreshing = false;
                         if(res.retCode === 0){
                             if(res.data.list.length === 0){
-                                this.emptyData = true;
+                                if(type === 'add'){
+                                    tabItem.noMoreData = true;
+                                }else{
+                                    tabItem.emptyData = true;
+                                }
                             }
-                            this.videos = res.data.list;
-                            this.totalPage = res.data.totalPage;
-                            this.totalCount = res.data.totalPage;
+                            res.data.list.forEach(item => {
+                                tabItem.list.push(item);
+                            });
+
+                            tabItem.totalPage = res.data.totalPage;
+                            tabItem.totalCount = res.data.totalPage;
+
+                            if(type === 'init'){
+                                tabItem.isLoading = false;
+                            }
+                            if(type === 'refresh'){
+                                tabItem.isRefreshing = false;
+                                this.$toast({message: '刷新成功', position: 'bottom'});
+                            }
+                            if(type === 'add'){
+                                tabItem.isLoadingMore = false;
+                            }
+
+                        }else{
+                            tabItem.error = true;
+                            tabItem.errorMsg = res.retMsg;
                         }
                     })
+                    .catch(e => {
+                      tabItem.error = true;
+                      tabItem.errorMsg = e;
+                })
             },
             //下拉刷新
             onRefresh() {
-                this.currentPage = 1;
-                this.getVideos();
+                this.getVideos('refresh');
             },
             //加载更多
-            changePage() {
-                this.currentPage += 1;
-                this.isLoadingMore = true;
-                let params = {};
-                if(this.category){
-                    params.category = this.category;
-                }
-                this.$get(this.API.home, params, this.currentPage)
-                    .then((res) => {
-                        this.isLoadingMore = false;
-                        if(res.retCode === 0){
-                            if(res.data.list.length === 0){
-                                this.noMoreData = true;
-                                return;
-                            }
-                            res.data.list.map((item, index) => {
-                                this.videos.push(item);
-                            })
-                            this.totalPage = res.data.totalPage;
-                            this.totalCount = res.data.totalPage;
-                        }
-                    })
+            loadMore() {
+                this.getVideos('add')
             },
             setHeader() {
-                this.$store.commit('showHeader');
-                this.$store.commit('hideBack');
-                this.$store.commit('setTitle','最近更新');
-                this.$store.commit('setLeftText','');
-                this.$store.commit('setRightText','搜索');
-                this.$store.commit('setClickRight',() => { this.$router.push('/search') });
+                let data = {
+                    title: '最近更新',
+                    showBack: false,
+                    leftText: '',
+                    clickLeft: '',
+                    rightText: '搜索',
+                    clickRight: () => { this.$router.push('/search') },
+                }
+                this.$emit('changeHeader', data)
+                // this.$store.commit('showHeader');
+                // this.$store.commit('hideBack');
+                // this.$store.commit('setTitle','最近更新');
+                // this.$store.commit('setLeftText','');
+                // this.$store.commit('setRightText','搜索');
+                // this.$store.commit('setClickRight',() => { this.$router.push('/search') });
             },
         },
 

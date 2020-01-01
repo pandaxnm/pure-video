@@ -1,11 +1,11 @@
 <template>
     <van-nav-bar
-        :title="title"
-        :left-arrow="showBack"
-        :left-text="leftText"
-        :right-text="rightText"
-        @click-left="clickLeft"
-        @click-right="clickRight"
+        :title="data.title"
+        :left-arrow="data.showBack"
+        :left-text="data.leftText"
+        :right-text="data.rightText"
+        @click-left="data.clickLeft"
+        @click-right="data.clickRight"
         border
         fixed
         :z-index=100
@@ -18,7 +18,8 @@
 
     export default {
         name: 'Header',
-        props: ["title", "leftText", "rightText", "showBack", "clickLeft", "clickRight", "showLeftArrow"],
+        // props: ["title", "leftText", "rightText", "showBack", "clickLeft", "clickRight", "showLeftArrow"],
+        props: ["data"],
         components: {
             'van-nav-bar': NavBar,
         },
