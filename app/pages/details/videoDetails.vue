@@ -100,7 +100,7 @@
 					id: this.detailData.id,
 					from: this.detailData.from
 				}
-				this.$get('/video/detail', data)
+				this.$get('/api/video/detail', data)
 				.then((res) => {
 					if(res.retCode === 0){
 						this.videoInfo = res.data.detail;

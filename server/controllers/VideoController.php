@@ -131,4 +131,10 @@ class VideoController extends BaseController {
         $categories = $model->getCategories();
         return $this->jsonResult($categories);
     }
+
+    public function actionBanner()
+    {
+        $model = new ServiceVideo();
+        return $this->jsonResult($model->getBanners());
+    }
 }

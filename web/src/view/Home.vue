@@ -2,29 +2,37 @@
     <div>
         <my-error v-if="error" :errorMsg="errorMsg" :tryAgain="getCategories"></my-error>
         <my-loading v-else-if="isLoading"></my-loading>
-        <van-tabs v-else @click="getVideos" swipeable v-model="tabBarIndex" animated>
-            <van-tab v-for="(category, index) in categories" :title="category.name" :key="index">
-                <my-error v-if="category.error" :errorMsg="category.errorMsg" :tryAgain="getVideos"></my-error>
-                <my-loading v-else-if="category.isLoading"></my-loading>
-                <div v-else-if="category.emptyData" class="empty">
-                    <span>暂无数据</span>
-                    <van-button @click="getVideos" size="small">刷新</van-button>
-                </div>
-                <div v-else class="home-container">
-                    <van-pull-refresh v-model="category.isRefreshing" @refresh="onRefresh" class="list">
-                        <van-list
-                                v-model="category.isLoadingMore"
-                                :finished="category.noMoreData"
-                                finished-text="没有更多了"
-                                @load="loadMore"
-                        >
-                            <movie-card v-for="(video, index) in category.list" :video="video" :key="index">
-                            </movie-card>
-                        </van-list>
-                    </van-pull-refresh>
-                </div>
-            </van-tab>
-        </van-tabs>
+        <div v-else>
+            <van-swipe v-if="banners.length > 0" :autoplay="5000" indicator-color="white">
+                <van-swipe-item v-for="item in banners">
+                    <img :src="item.url" style="width: 100%;height:150px;object-fit: cover;" @click="toVideoDetail(item.video_id)"/>
+                </van-swipe-item>
+            </van-swipe>
+            <van-tabs  @click="getVideos" swipeable v-model="tabBarIndex" animated>
+                <van-tab v-for="(category, index) in categories" :title="category.name" :key="index">
+                    <my-error v-if="category.error" :errorMsg="category.errorMsg" :tryAgain="getVideos"></my-error>
+                    <my-loading v-else-if="category.isLoading"></my-loading>
+                    <div v-else-if="category.emptyData" class="empty">
+                        <span>暂无数据</span>
+                        <van-button @click="getVideos" size="small">刷新</van-button>
+                    </div>
+                    <div v-else class="home-container">
+                        <van-pull-refresh v-model="category.isRefreshing" @refresh="onRefresh" class="list">
+                            <van-list
+                                    v-model="category.isLoadingMore"
+                                    :finished="category.noMoreData"
+                                    finished-text="没有更多了"
+                                    @load="loadMore"
+                            >
+                                <movie-card v-for="(video, index) in category.list" :video="video" :key="index">
+                                </movie-card>
+                            </van-list>
+                        </van-pull-refresh>
+                    </div>
+                </van-tab>
+            </van-tabs>
+        </div>
+
     </div>
 
 </template>
@@ -34,13 +42,17 @@
     import MyLoading from '../components/Loading';
     import MyError from '../components/Error';
     import common from '../utils/common';
+    import { Swipe, SwipeItem } from 'vant';
+
 
     export default {
         name: "Home",
         components: {
             MovieCard,
             MyLoading,
-            MyError
+            MyError,
+            'van-swipe': Swipe,
+            'van-swipe-item': SwipeItem,
         },
         mounted() {
             this.init();
@@ -59,9 +71,13 @@
                 isLoading: false,
                 error: false,
                 errorMsg: '',
+                banners: [],
             }
         },
         methods: {
+            toVideoDetail(id) {
+                this.$router.push({name: 'Detail', query: {id: id}})
+            },
             init() {
                 this.setHeader();
                 this.getCategories();
@@ -70,6 +86,7 @@
                 this.error = false;
                 this.errorMsg = '';
                 this.isLoading = true;
+                this.getBanners();
                 this.$get(this.API.categories, {})
                 .then((res) => {
                     if(res.retCode === 0){
@@ -162,6 +179,14 @@
                       tabItem.error = true;
                       tabItem.errorMsg = e;
                 })
+            },
+            getBanners() {
+                this.$get(this.API.banner)
+                    .then(res =>{
+                        if(res.retCode === 0){
+                            this.banners = res.data;
+                        }
+                    })
             },
             //下拉刷新
             onRefresh() {

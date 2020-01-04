@@ -243,4 +243,20 @@ class ServiceVideo extends \yii\db\ActiveRecord{
         return $data;
     }
 
+    public  function getBanners()
+    {
+        $key = 'video-banners';
+        $cache = Yii::$app->getCache();
+
+        if(!$this->settings['cache_enable'] || !$data = $cache->get($key)) {
+
+            $banners = Banner::find()->asArray()->all();
+
+            $dep = new DbDependency(['sql'=>'SELECT MAX(created_at) FROM '. Banner::tableName()]);
+            $cache->set($key, $banners, intval($this->settings['cache_time'])*60, $dep);
+        }
+
+        return $banners;
+    }
+
 }

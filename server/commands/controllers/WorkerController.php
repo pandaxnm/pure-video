@@ -7,6 +7,7 @@
  */
 namespace app\commands\controllers;
 
+use app\commands\models\ServiceBanner;
 use app\commands\models\ServiceImage;
 use app\commands\models\ServiceVideo;
 use yii\console\Controller;
@@ -29,6 +30,13 @@ class WorkerController extends Controller{
     {
         $model = new ServiceVideo();
         $model->getVideo($foreUpdate);
+    }
+
+    public function actionGetBanner()
+    {
+        $model = new ServiceBanner();
+        $model->getBanner();
+
     }
 
 }

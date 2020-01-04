@@ -81,7 +81,7 @@
 			},
 			//获取热门搜索
 			getHotList() {
-				this.$get('/video/hot')
+				this.$get('/api/video/hot')
 				.then((res) => {
 					if(res.retCode === 0){
 						this.hotList = res.data.list;
@@ -114,7 +114,7 @@
 				let data = {
 					keyword: keyword
 				}
-				this.$get('/video/search', data, this.currentPage)
+				this.$get('/api/video/search', data, this.currentPage)
 				.then((res) => {
                     if(res.retCode === 0){
                         if(search){

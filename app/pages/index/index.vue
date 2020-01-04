@@ -134,7 +134,7 @@
 			//获取tabbar
 			loadTabbars(){
 				this.error = false;
-                this.$get('/video/categories')
+                this.$get('/api/video/categories')
                     .then((res) => {
 					if(res.retCode === 0){
 						let tabList = res.data;
@@ -172,13 +172,13 @@
 					tabItem.refreshing = true;
 					tabItem.page = 1;
 				}
-				let url = '/video/index';
+				let url = '/api/video/index';
 				let data = {
 					p: tabItem.page,
 					category: tabItem.name
 				}
 				
-				this.$get('/video/index', data, tabItem.page)
+				this.$get('/api/video/index', data, tabItem.page)
 				.then((res) => {
 					console.log(res);
                     if(res.retCode === 0){
