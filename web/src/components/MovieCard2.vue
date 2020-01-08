@@ -3,9 +3,13 @@
         <van-card
                 :thumb="video.poster"
                 class="card"
-                :tag="video.type === 'tv' ? '第'+video.current_list_count+'集' : ''"
+                tag=""
+                @click="toVideoDetail"
+                @click-thumb="toVideoDetail"
+
         >
             <div slot="thumb">
+                <!--<img class="thumb" v-lazy="video.poster_url ? API.domain + video.poster_url : video.poster"/>-->
                 <img class="thumb" v-lazy="video.poster"/>
             </div>
             <div slot="title">
@@ -19,7 +23,6 @@
                 </p>
                 <p class="desc">导演：{{video.director ? video.director : '未知'}}</p>
                 <p class="desc">主演：{{video.actors ? video.actors : '未知'}}</p>
-                <van-tag plain type="danger" v-if="video.note" class="note">{{video.note}}</van-tag>
             </div>
         </van-card>
     </div>
@@ -28,8 +31,21 @@
 
 <script>
     export default {
-        name: "MovieCard",
-        props: ["video"],
+        name: "MovieCard2",
+        props: ["video","from"],
+        data() {
+            return {
+                id: 0,
+            }
+        },
+        created() {
+            this.id = this.video.id
+        },
+        methods: {
+            toVideoDetail() {
+                this.$router.push({name: 'Detail', query: {id: this.id,from: this.from ? this.from : ''}})
+            },
+        }
     }
 </script>
 
@@ -38,18 +54,18 @@
         border-radius: .3rem;
         margin: .5rem .3rem;
         background-color: #fff;
-        min-height: 10rem;
+        min-height: 7rem;
     }
     .thumb {
-        width: 4.5rem;
+        width: 4rem;
         height: 6rem;
         margin-left: .5rem;
         margin-top: .25rem;
     }
     .title {
-        font-size: 1rem;
         margin-top: .2rem;
-        margin-bottom: .2rem;
+        margin-bottom: .5rem;
+        font-size: .9rem;
         max-height: 2rem;
         font-weight: bold;
         line-height: 1rem;
@@ -61,12 +77,12 @@
         margin: .3rem 0;
         margin-bottom: 0;
         color: #666;
-        /*overflow: hidden;*/
-        /*white-space: nowrap;*/
-        /*text-overflow: ellipsis;*/
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
-    .note {
-        font-size: .75rem;
-        margin: .7rem 0 .5rem 0;
+    .list-count span{
+        padding-right: .6em;
+        border-radius: 0 .8em .8em 0;
     }
 </style>

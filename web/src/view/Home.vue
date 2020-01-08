@@ -4,7 +4,7 @@
         <my-loading v-else-if="isLoading"></my-loading>
         <div v-else>
             <van-swipe v-if="banners.length > 0" :autoplay="5000" indicator-color="white">
-                <van-swipe-item v-for="item in banners">
+                <van-swipe-item v-for="(item, index) in banners" :key="index">
                     <img :src="item.url" style="width: 100%;height:150px;object-fit: cover;" @click="toVideoDetail(item.video_id)"/>
                 </van-swipe-item>
             </van-swipe>
@@ -23,9 +23,13 @@
                                     :finished="category.noMoreData"
                                     finished-text="没有更多了"
                                     @load="loadMore"
+
                             >
-                                <movie-card v-for="(video, index) in category.list" :video="video" :key="index">
-                                </movie-card>
+                                <div style="display: flex;flex-wrap: wrap;justify-content: space-around">
+                                    <movie-card v-for="(video, index) in category.list" :video="video" :key="index">
+                                    </movie-card>
+                                </div>
+
                             </van-list>
                         </van-pull-refresh>
                     </div>
@@ -122,6 +126,11 @@
                 if(type === 'init' && tabItem.list.length > 0){
                     return;
                 }
+                // if(type === 'add' && tabItem.currentPage!==0 &&  tabItem.currentPage >= tabItem.totalPage){
+                //     tabItem.isLoadingMore = false;
+                //     tabItem.noMoreData = true;
+                //     return;
+                // }
                 tabItem.error = false;
                 tabItem.errorMsg = '';
                 tabItem.emptyData = false;
@@ -140,7 +149,7 @@
                 }
 
                 let params = {
-                    category: tabItem.name
+                    navi_id: parseInt(tabItem.id)
                 };
                 this.$get(this.API.home, params, tabItem.currentPage)
                     .then((res) => {

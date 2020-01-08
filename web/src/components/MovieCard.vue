@@ -1,30 +1,13 @@
 <template>
-    <div>
-        <van-card
-                :thumb="video.poster"
-                class="card"
-                tag=""
-                @click="toVideoDetail"
-                @click-thumb="toVideoDetail"
+    <div style="width: 7.5rem;margin-top: 10px;">
+        <div style="position: relative;">
+            <img :src="video.poster" style="width: 100%;height:10rem;object-fit:cover"  @click="toVideoDetail"/>
+            <span v-if="video.note" class="note">
+                {{video.note}}
+            </span>
 
-        >
-            <div slot="thumb">
-                <!--<img class="thumb" v-lazy="video.poster_url ? API.domain + video.poster_url : video.poster"/>-->
-                <img class="thumb" v-lazy="video.poster"/>
-            </div>
-            <div slot="title">
-                <p class="title">{{video.title}}</p>
-            </div>
-            <div slot="desc">
-                <p class="desc">
-                    {{video.area ? video.area + ' / ' : ''}}
-                    {{video.category ? video.category + ' / ' : ''}}
-                    {{video.year > 0  ? video.year + ' / ' : ''}}
-                </p>
-                <p class="desc">导演：{{video.director ? video.director : '未知'}}</p>
-                <p class="desc">主演：{{video.actors ? video.actors : '未知'}}</p>
-            </div>
-        </van-card>
+        </div>
+        <span style="font-size: .8rem;overflow:hidden;">{{video.title}}</span>
     </div>
 
 </template>
@@ -50,36 +33,22 @@
 </script>
 
 <style scoped>
-    .card {
-        border-radius: .3rem;
-        margin: .5rem .3rem;
-        background-color: #fff;
-        min-height: 7rem;
-    }
-    .thumb {
-        width: 4rem;
-        height: 6rem;
-        margin-left: .5rem;
-        margin-top: .25rem;
-    }
-    .title {
-        margin-top: .2rem;
-        margin-bottom: .5rem;
-        font-size: .9rem;
-        max-height: 2rem;
-        font-weight: bold;
-        line-height: 1rem;
+    .note {
+        text-align: right;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        background: linear-gradient(transparent, #444);
+        height: 2rem;
+        width: 100%;
         overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-    }
-    .desc {
-        margin: .3rem 0;
-        margin-bottom: 0;
-        color: #666;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
+        color: #ddd;
+        font-size: .7rem;
+        /*padding-right: .6rem;*/
+        margin-bottom: .2rem;
     }
     .list-count span{
         padding-right: .6em;

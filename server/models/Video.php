@@ -31,6 +31,7 @@ use Yii;
  * @property string $source
  * @property string $note 备注
  * @property int $search_count 搜索次数
+ * @property int $node_id
  */
 class Video extends \yii\db\ActiveRecord
 {
@@ -50,7 +51,7 @@ class Video extends \yii\db\ActiveRecord
         return [
             [['desc', 'director', 'actors'], 'string'],
             [['rate'], 'number'],
-            [['year', 'current_list_count', 'total_list_count', 'time', 'views', 'out_id', 'created_at', 'updated_at', 'search_count'], 'integer'],
+            [['year', 'current_list_count', 'total_list_count', 'time', 'views', 'out_id', 'created_at', 'updated_at', 'search_count', 'node_id'], 'integer'],
             [['title', 'poster', 'poster_url', 'otitle', 'type', 'area', 'category', 'language', 'source', 'note'], 'string', 'max' => 255],
         ];
     }
@@ -84,7 +85,8 @@ class Video extends \yii\db\ActiveRecord
             'language' => 'Language',
             'source' => 'Source',
             'note' => 'Note',
-            'search_count' => 'Search Count'
+            'search_count' => 'Search Count',
+            'node_id' => 'Node Id'
         ];
     }
 }

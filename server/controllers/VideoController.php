@@ -7,6 +7,7 @@
  */
 namespace app\controllers;
 
+use app\models\Navi;
 use app\models\Utils;
 use app\models\ServiceVideo;
 
@@ -20,19 +21,16 @@ class VideoController extends BaseController {
     {
         $params = $this->getRequest();
         $ret = Utils::verifyParams($params, [
-            'OPTIONAL' => [
-                'sort' => 'string',
-                'category' => 'string',
+            'REQUIRED' => [
+                'navi_id' => 'int',
             ]
         ]);
 
         if(!$ret){
             return $this->jsonError('参数错误');
         }
-        $sort = isset($params['sort']) ? $params['sort'] : '';
-        $category = isset($params['category']) ? $params['category'] : '';
         $model = new ServiceVideo();
-        $videos = $model->getIndexVideo($sort, $category);
+        $videos = $model->getIndexVideo($params['navi_id']);
 
         return $this->jsonResult($videos);
     }
@@ -127,9 +125,7 @@ class VideoController extends BaseController {
      */
     public function actionCategories()
     {
-        $model = new ServiceVideo();
-        $categories = $model->getCategories();
-        return $this->jsonResult($categories);
+        return $this->jsonResult(Navi::getNavis());
     }
 
     public function actionBanner()

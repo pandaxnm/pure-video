@@ -43,8 +43,8 @@
                             @load="changePage"
                             :offset="50"
                     >
-                        <movie-card v-for="(video, index) in videos" :video="video" :key="index" from="search">
-                        </movie-card>
+                        <movie-card2 v-for="(video, index) in videos" :video="video" :key="index" from="search">
+                        </movie-card2>
                     </van-list>
                 </div>
             </div>
@@ -55,13 +55,13 @@
 
 <script>
     import MyLoading from '../components/Loading';
-    import MovieCard from "../components/MovieCard";
+    import MovieCard2 from "../components/MovieCard2";
 
     export default {
         name: "Search",
         components: {
             MyLoading,
-            MovieCard,
+            MovieCard2,
         },
         mounted() {
             this.setHeader();
@@ -123,6 +123,11 @@
             },
             //加载更多
             changePage() {
+                if(this.currentPage >= this.totalPage){
+                    this.isLoadingMore = false;
+                    this.noMoreData = true;
+                    return false;
+                }
                 this.currentPage += 1;
                 this.isLoadingMore = true;
                 this.$get(this.API.search, {keyword: this.keyword}, this.currentPage)

@@ -10,7 +10,10 @@ namespace app\commands\controllers;
 use app\commands\models\ServiceBanner;
 use app\commands\models\ServiceImage;
 use app\commands\models\ServiceVideo;
+use app\models\Node;
+use app\models\Video;
 use yii\console\Controller;
+use yii\data\Pagination;
 
 class WorkerController extends Controller{
 

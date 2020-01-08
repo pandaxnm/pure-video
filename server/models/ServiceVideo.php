@@ -27,31 +27,33 @@ class ServiceVideo extends \yii\db\ActiveRecord{
      * 首页视频
      * @return array|mixed
      */
-    public function getIndexVideo($order, $category)
+    public function getIndexVideo($naviId)
     {
-        if($order != 'views' && $order != 'last'){
-            $order = '';
+        if($naviId == 5){
+            $where = [];
+        }else{
+            $nodes = Navi::getNaviNodes($naviId);
+            $nodeIds = ArrayHelper::getColumn($nodes, 'id');
+
+            $where = ['in', 'node_id', $nodeIds];
         }
-        if($category == '全部'){
-            $category = '';
-        }
+
         $query = Video::find();
         $countQuery = clone $query;
-        $where = $category ? ['category' => $category] : [];
         $pages = new Pagination([
             'totalCount' => $countQuery->where($where)->count(Video::tableName() . '.id'),
             'pageSize' => intval($this->settings['index_pagesize']),
             'pageParam' => 'p'
         ]);
 
-        $key = 'video-index-' . $order . '-' . $category . '-' . $pages->getPage();
+        $key = 'video-index-' . '-' . $naviId . '-' . $pages->getPage();
         $cache = Yii::$app->getCache();
         $totalPage = ceil($pages->totalCount / $this->settings['index_pagesize']);
 
         if(!$this->settings['cache_enable'] || !$data = $cache->get($key)){
             $videos = $query
-                ->where($category ? ['category' => $category] : [])
-                ->orderBy($order == 'views' ? ['views'=>SORT_DESC,'updated_at' => SORT_DESC] : ['updated_at' => SORT_DESC,'created_at'=>SORT_DESC])
+                ->where($where)
+                ->orderBy(['updated_at' => SORT_DESC,'created_at'=>SORT_DESC])
 //                ->orderBy(['id' => SORT_DESC])
                 ->offset($pages->offset)
                 ->limit($pages->limit)
@@ -250,13 +252,13 @@ class ServiceVideo extends \yii\db\ActiveRecord{
 
         if(!$this->settings['cache_enable'] || !$data = $cache->get($key)) {
 
-            $banners = Banner::find()->asArray()->all();
+            $data = Banner::find()->asArray()->all();
 
             $dep = new DbDependency(['sql'=>'SELECT MAX(created_at) FROM '. Banner::tableName()]);
-            $cache->set($key, $banners, intval($this->settings['cache_time'])*60, $dep);
+            $cache->set($key, $data, intval($this->settings['cache_time'])*60, $dep);
         }
 
-        return $banners;
+        return $data;
     }
 
 }

@@ -8,6 +8,8 @@
 
 namespace app\commands\models;
 
+use app\models\Node;
+use app\models\Utils;
 use Yii;
 use app\models\Video;
 use app\models\VideoList;
@@ -15,7 +17,7 @@ use yii\helpers\Console;
 
 class ServiceVideo{
 
-    const URL = 'http://www.zdziyuan.com/inc/api_zuidam3u8.php';
+    const URL = 'http://cj.yongjiuzyw.com/inc/yjm3u8.php';
     public static $skip = ['福利片','伦理片'];//不抓取的影片类型
 
     function getVideo($foreUpdate)
@@ -56,12 +58,14 @@ class ServiceVideo{
                         break 2;
                     }
                     Console::output($video['name']);
+                    $nodeId = $this->getNodeId(trim($video['type']));
                     $params = [
                         'source' => 'zd',
                         'out_id' => (int)$video['id'],
                         'updated_at' => (int)strtotime($video['last']),
                         'title' => $video['name'],
                         'category' => $video['type'],
+                        'node_id' => $nodeId,
                         'poster' => $video['pic'],
                         'language' => $video['lang'] ? $video['lang'] : '',
                         'area' => $video['area'] ? $video['area'] : '',
@@ -170,6 +174,15 @@ class ServiceVideo{
     {
         $last = Video::find()->select(['updated_at'])->orderBy(['updated_at' => SORT_DESC])->asArray()->one();
         return $last ? $last['updated_at'] : 0;
+    }
+
+    public function getNodeId($name)
+    {
+        $nodeInfo = Node::find()->where(['name' => trim($name)])->asArray()->one();
+        if($nodeInfo){
+            return $nodeInfo['id'];
+        }
+        return 0;
     }
 
 
