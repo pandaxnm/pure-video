@@ -6,7 +6,7 @@ $params = array_merge(
 );
 
 $config = [
-    'id' => 'basic',
+    'id' => 'pure-video',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
     'language' => 'zh-CN',
@@ -24,10 +24,10 @@ $config = [
             'class' => 'yii\redis\Cache',
         ],
         'redis' => require(__DIR__ . '/redis.php'),
-        'user' => [
-            'identityClass' => 'app\models\User',
-            'enableAutoLogin' => true,
-        ],
+//        'user' => [
+//            'identityClass' => 'app\models\User',
+//            'enableAutoLogin' => true,
+//        ],
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
