@@ -3,6 +3,8 @@
 namespace app\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "video_list".
@@ -37,6 +39,19 @@ class VideoList extends \yii\db\ActiveRecord
             [['video_id'], 'required'],
             [['video_id', 'list_num', 'created_at', 'updated_at', 'views'], 'integer'],
             [['download_url', 'web_url', 'play_url', 'xianlu'], 'string'],
+        ];
+    }
+
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
+                ],
+            ],
         ];
     }
 

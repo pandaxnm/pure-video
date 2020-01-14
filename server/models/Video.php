@@ -3,6 +3,8 @@
 namespace app\models;
 
 use Yii;
+use yii\behaviors\TimestampBehavior;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "video".
@@ -53,6 +55,19 @@ class Video extends \yii\db\ActiveRecord
             [['rate'], 'number'],
             [['year', 'current_list_count', 'total_list_count', 'time', 'views', 'out_id', 'created_at', 'updated_at', 'search_count', 'node_id'], 'integer'],
             [['title', 'poster', 'poster_url', 'otitle', 'type', 'area', 'category', 'language', 'source', 'note'], 'string', 'max' => 255],
+        ];
+    }
+
+    public function behaviors()
+    {
+        return [
+            [
+                'class' => TimestampBehavior::className(),
+                'attributes' => [
+                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
+                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
+                ],
+            ],
         ];
     }
 

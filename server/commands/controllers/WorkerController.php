@@ -32,7 +32,8 @@ class WorkerController extends Controller{
     public function actionGetVideos($foreUpdate = false)
     {
         $model = new ServiceVideo();
-        $model->getVideo($foreUpdate);
+        $url = 'http://cj.yongjiuzyw.com/inc/yjm3u8.php';
+        $model->collectVideo($url);
     }
 
     public function actionGetBanner()
