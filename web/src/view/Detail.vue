@@ -84,7 +84,7 @@
                         this.isLoading = false;
                         if(res.retCode === 0){
                             this.detail = res.data.detail;
-                            this.list = res.data.list;
+                            this.list = res.data.list[0];
                         }
                     }).catch((e) => {
                         this.error = true;

@@ -18,8 +18,8 @@
                     </div>
                     <van-row style="margin-top:.5rem;margin-bottom: 1rem">
                         <van-col v-for="(item, index) in lines" span="6" class="lines-row" :key="index">
-                            <van-button size="small" plain type="primary" v-if="index == currentLine" class="lines-btn" @click="toPlay(detail.id, item.list_num)"><span class="source-item">{{item.xianlu}}</span></van-button>
-                            <van-button size="small" v-else class="lines-btn" @click="changeLine(item.play_url, index)"><span class="source-item">{{item.xianlu}}</span></van-button>
+                            <van-button size="small" plain type="primary" v-if="index == currentLine" class="lines-btn" @click="toPlay(detail.id, item.list_num)"><span class="source-item">{{index+1}}</span></van-button>
+                            <van-button size="small" v-else class="lines-btn" @click="changeLine(item.play_url, index)"><span class="source-item">{{index+1}}</span></van-button>
                         </van-col>
                     </van-row>
                 </div>
@@ -29,7 +29,7 @@
                 <div>
                     <van-tag plain>剧集</van-tag>
                     <div class="list-container">
-                        <div v-for="(item, index) in list" class="list-row" :key="index">
+                        <div v-for="(item, index) in list[currentLine]" class="list-row" :key="index">
                             <van-button size="small" plain type="primary" v-if="item.list_num == lastWatchNum" class="list-btn" @click="toPlay(detail.id, item.list_num)">{{item.list_num}}</van-button>
                             <van-button size="small" v-else class="list-btn" @click="changeListNum(item.list_num,item.play_url)">{{item.list_num}}</van-button>
                         </div>

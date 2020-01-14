@@ -53,6 +53,9 @@ class ServiceVideo{
 
         $ids = [];
         foreach ($xml->list->video as $video) {
+            if($video->title == '福利片' || $video->title == '伦理片') {
+                continue;
+            }
             array_push($ids, (string)$video->id);
         }
 
@@ -95,6 +98,7 @@ class ServiceVideo{
                 'note' => $video->note ? $video->note : '',
             ];
             $vid = $this->insertOrUpdateVideo($videoParams);
+            Console::output($video->name);
             //插入影片剧集
             if($count = count($video->dl->dd)){
                 for($i=0; $i<$count; $i++){
@@ -132,7 +136,7 @@ class ServiceVideo{
         $listArray = [];
         foreach ($lists as $lk => $list) {
             $listDetail = explode('$', $list);
-            if(!$listDetail) continue;
+            if(!$listDetail || count($listDetail) < 2) continue;
             $listArray[] = [
                 'list_num' => $this->parseListNum( $listDetail[0]),
                 'play_url' => $listDetail[1],

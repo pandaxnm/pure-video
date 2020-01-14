@@ -29,11 +29,14 @@ class WorkerController extends Controller{
     /**
      * @param bool $foreUpdate 是否采集所有资源 false则只采集最近更新的资源
      */
-    public function actionGetVideos($foreUpdate = false)
+    public function actionGetVideos()
     {
         $model = new ServiceVideo();
-        $url = 'http://cj.yongjiuzyw.com/inc/yjm3u8.php';
-        $model->collectVideo($url);
+        $urls = ['http://www.zdziyuan.com/inc/api_zuidam3u8.php', 'http://cj.yongjiuzyw.com/inc/yjm3u8.php'];
+
+        foreach ($urls as $url){
+            $model->collectVideo($url);
+        }
     }
 
     public function actionGetBanner()

@@ -89,21 +89,25 @@ class ServiceVideo extends \yii\db\ActiveRecord{
         $key = 'video-detail-' . $id;
         $cache = Yii::$app->getCache();
 
-        if(!$this->settings['cache_enable'] || !$data = $cache->get($key)) {
+//        if(!$this->settings['cache_enable'] || !$data = $cache->get($key)) {
             //获取剧集
             $list = VideoList::find()
                 ->where(['video_id' => $id])
                 ->orderBy(['list_num' => SORT_ASC])
+//                ->groupBy('list_num')
                 ->asArray()
                 ->all();
-
+            $newList = [];
+            foreach ($list as $v){
+                $newList[$v['xianlu']][] = $v;
+            }
             $data = [
                 'detail' => $videoInfo,
-                'list' => $list,
+                'list' => array_values($newList),
             ];
             $dep = new DbDependency(['sql'=>'SELECT updated_at,current_list_count FROM '. Video::tableName()]);
             $cache->set($key, $data, intval($this->settings['cache_time'])*60, $dep);
-        }
+//        }
 
         $updateCounters = [
             'views' => 1,
