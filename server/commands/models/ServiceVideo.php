@@ -17,6 +17,12 @@ use yii\helpers\Console;
 
 class ServiceVideo{
 
+    public $count;
+
+    public function __construct()
+    {
+        $this->count = 0;
+    }
 
     public function collectVideo($url)
     {
@@ -37,12 +43,18 @@ class ServiceVideo{
      * @param int $p
      * @param bool $foreUpdate
      */
-    public function getVideoIds($url, $p = 1, $foreUpdate = false)
+    public function getVideoIds($url, $p = 1)
     {
         $videosUrl = $url . "?ac=list&pg=%d";
 
         $newUrl = sprintf($videosUrl, $p);
-        $data = file_get_contents($newUrl);
+        Console::output($newUrl);
+        try{
+            $data = file_get_contents($newUrl);
+        }catch (\Exception $e){
+            Console::output('接口请求失败');
+            return [];
+        }
         $xml = @simplexml_load_string($data);
         if(empty($xml)) {
             Console::output('XML格式不正确，不支持采集');
@@ -96,7 +108,8 @@ class ServiceVideo{
                 'note' => $video->note ? $this->parseNote((string)$video->note) : '',
             ];
             $vid = $this->insertOrUpdateVideo($videoParams);
-            Console::output($video->name);
+            $this->count++;
+            Console::output($this->count . '：' . $video->name);
             //插入影片剧集
             if($count = count($video->dl->dd)){
                 for($i=0; $i<$count; $i++){
@@ -151,7 +164,7 @@ class ServiceVideo{
     }
 
     public function parseNote($str) {
-        $rep = ['版', '1280', '1080'];
+        $rep = ['版', '1280', '1080', '1280p', '1080p', '1280P', '1080P'];
         $str = str_replace( $rep, '', $str);
         return $str;
     }

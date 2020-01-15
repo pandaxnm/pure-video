@@ -14,8 +14,21 @@ use app\models\Node;
 use app\models\Video;
 use yii\console\Controller;
 use yii\data\Pagination;
+use yii\helpers\Console;
 
 class WorkerController extends Controller{
+
+    public function beforeAction($action)
+    {
+        $this->stdout('开始运行：'. date('Y-m-d H:i:s') . PHP_EOL, Console::FG_GREEN);
+        return parent::beforeAction($action);
+    }
+
+    public function afterAction($action, $result)
+    {
+        $this->stdout('结束运行：'. date('Y-m-d H:i:s') . PHP_EOL);
+        return parent::afterAction($action, $result);
+    }
 
     /**
      * 图片本地化
@@ -31,7 +44,6 @@ class WorkerController extends Controller{
      */
     public function actionGetVideos()
     {
-        $model = new ServiceVideo();
         $urls = [
             'http://www.zdziyuan.com/inc/api_zuidam3u8.php', //最大
             'https://cj.wlzy.tv/inc/s_api_zp_m3u8.php', //卧龙
@@ -39,6 +51,7 @@ class WorkerController extends Controller{
         ];
 
         foreach ($urls as $url){
+            $model = new ServiceVideo();
             $model->collectVideo($url);
         }
     }

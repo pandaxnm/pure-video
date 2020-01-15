@@ -122,7 +122,7 @@
             },
             //更换线路
             changeLine(url = '', index = 0) {
-                console.log(url)
+                // console.log(url)
                 if(!url){
                      url = this.lines[0].play_url;
                 }

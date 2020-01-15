@@ -15,7 +15,7 @@ const router =  new Router({
             component: Home,
             meta: {
                 keepAlive: true,
-                title: '最近更新'
+                title: '首页'
             }
         },
         {
@@ -55,6 +55,11 @@ router.beforeEach((to, from, next) => {
     }
     if(to.name === 'Detail'){
         to.meta.keepAlive = from.name === 'Video';
+    }
+    if (window._hmt) {
+        if (to.path && process.env.NODE_ENV !== 'development') {
+            window._hmt.push(['_trackPageview', '/#' + to.fullPath])
+        }
     }
 
     next();
