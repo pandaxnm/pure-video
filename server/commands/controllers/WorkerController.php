@@ -34,8 +34,8 @@ class WorkerController extends Controller{
         $model = new ServiceVideo();
         $urls = [
             'http://www.zdziyuan.com/inc/api_zuidam3u8.php', //最大
-            'http://cj.yongjiuzyw.com/inc/yjm3u8.php', //永久
             'https://cj.wlzy.tv/inc/s_api_zp_m3u8.php', //卧龙
+            'http://cj.yongjiuzyw.com/inc/yjm3u8.php', //永久
         ];
 
         foreach ($urls as $url){
