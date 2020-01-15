@@ -63,7 +63,7 @@ class ServiceVideo{
 
         $ids = [];
         foreach ($xml->list->video as $video) {
-            if(strpos((string)$video->type, '伦理') !== false || strpos((string)$video->type, '福利') !== false || strpos((string)$video->type, '视频秀') !== false || strpos((string)$video->type, '写真') !== false || strpos((string)$video->type, '街拍') !== false) {
+            if(strpos((string)$video->type, '伦理') !== false || strpos((string)$video->type, '福利') !== false || strpos((string)$video->type, '视频秀') !== false || strpos((string)$video->type, '写真') !== false || strpos((string)$video->type, '街拍') !== false || strpos((string)$video->type, '高跟') !== false) {
                 continue;
             }
             array_push($ids, (string)$video->id);
