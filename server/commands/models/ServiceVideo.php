@@ -93,7 +93,7 @@ class ServiceVideo{
                 'actors' => $video->actor ? $video->actor : '',
                 'director' => $video->director ? $video->director : '',
                 'desc' => $video->des ? strip_tags($video->des) : '',
-                'note' => $video->note ? $video->note : '',
+                'note' => $video->note ? $this->parseNote((string)$video->note) : '',
             ];
             $vid = $this->insertOrUpdateVideo($videoParams);
             Console::output($video->name);
@@ -146,6 +146,12 @@ class ServiceVideo{
 
     public function parseListNum($str) {
         $rep = ['第', '修正', '期', '版'];
+        $str = str_replace( $rep, '', $str);
+        return $str;
+    }
+
+    public function parseNote($str) {
+        $rep = ['版', '1280', '1080'];
         $str = str_replace( $rep, '', $str);
         return $str;
     }
