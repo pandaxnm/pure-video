@@ -11,30 +11,36 @@
                 <div class="video-name-list">
                     <span>正在播放 {{detail.title}} </span>
                     <span v-if="detail.type">{{$route.query.list_num}}</span>
+                    <span v-if="lastWatchNum"> - {{lastWatchNum}}</span>
                 </div>
                 <div id="lines">
-                    <div>
-                        <van-tag plain>播放源</van-tag>
-                    </div>
-                    <van-row style="margin-top:.5rem;margin-bottom: 1rem">
-                        <van-col v-for="(item, index) in lines" span="6" class="lines-row" :key="index">
-                            <van-button size="small" plain type="primary" v-if="index == currentLine" class="lines-btn" @click="toPlay(detail.id, item.list_num)"><span class="source-item">{{index+1}}</span></van-button>
-                            <van-button size="small" v-else class="lines-btn" @click="changeLine(item.play_url, index)"><span class="source-item">{{index+1}}</span></van-button>
-                        </van-col>
-                    </van-row>
+<!--                    <div>-->
+<!--                        <van-tag plain>播放源</van-tag>-->
+<!--                    </div>-->
+<!--                    <van-row style="margin-top:.5rem;margin-bottom: 1rem">-->
+<!--                        <van-col v-for="(item, index) in lines" span="6" class="lines-row" :key="index">-->
+<!--                            <van-button size="small" plain type="primary" v-if="index == currentLine" class="lines-btn" @click="toPlay(detail.id, item.list_num)"><span class="source-item">{{index+1}}</span></van-button>-->
+<!--                            <van-button size="small" v-else class="lines-btn" @click="changeLine(item.play_url, index)"><span class="source-item">{{index+1}}</span></van-button>-->
+<!--                        </van-col>-->
+<!--                    </van-row>-->
+                    <van-tabs style="margin-top:.5rem;margin-bottom: 1rem"  swipeable v-model="currentLine" >
+                        <van-tab v-for="(line, index) in lines" :title="`播放源`+(index+1)" :key="index">
+                            <div class="list-container">
+                                <div v-for="(item, index2) in list[currentLine]" class="list-row" :key="index2">
+                                    <van-button size="small" plain type="primary" v-if="item.list_num == lastWatchNum" class="list-btn" @click="toPlay(detail.id, item.list_num)">{{item.list_num}}</van-button>
+                                    <van-button size="small" v-else class="list-btn" @click="changeListNum(item.list_num,item.play_url)">{{item.list_num}}</van-button>
+                                </div>
+                            </div>
+                        </van-tab>
+                    </van-tabs>
                 </div>
 
-                <div style="margin: 1rem 0;height:0.01rem;background-color: #ddd"></div>
+<!--                <div style="margin: 1rem 0;height:0.01rem;background-color: #ddd"></div>-->
 
-                <div>
-                    <van-tag plain>剧集</van-tag>
-                    <div class="list-container">
-                        <div v-for="(item, index) in list[currentLine]" class="list-row" :key="index">
-                            <van-button size="small" plain type="primary" v-if="item.list_num == lastWatchNum" class="list-btn" @click="toPlay(detail.id, item.list_num)">{{item.list_num}}</van-button>
-                            <van-button size="small" v-else class="list-btn" @click="changeListNum(item.list_num,item.play_url)">{{item.list_num}}</van-button>
-                        </div>
-                    </div>
-                </div>
+<!--                <div>-->
+<!--                    <van-tag plain>剧集</van-tag>-->
+
+<!--                </div>-->
 
             </div>
         </div>
@@ -136,8 +142,12 @@
             changeListNum(list_num, play_url) {
                 this.lastWatchNum = list_num;
                 Common.setWatchNum(this.videoId,list_num);
-                this.$router.replace({name: 'Video',query: {id:this.videoId, list_num: list_num}});
-                this.changeLine(play_url)
+                // this.$router.replace({name: 'Video',query: {id:this.videoId, list_num: list_num}});
+                // this.changeLine(play_url)
+                this.player.switchVideo({
+                    url: play_url,
+                });
+                this.player.play();
             },
             setHeader() {
                 let data = {

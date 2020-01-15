@@ -60,6 +60,12 @@ class ServiceVideo extends \yii\db\ActiveRecord{
                 ->asArray()
                 ->all();
 
+            foreach ($videos as &$video) {
+                if($video['poster_url']) {
+                    $video['poster'] = getenv('domain') . $video['poster_url'];
+                }
+            }
+
             $data = [
                 'list' => $videos,
                 'totalCount' => $pages->totalCount,
@@ -84,6 +90,10 @@ class ServiceVideo extends \yii\db\ActiveRecord{
         $videoInfo = Video::find()->where(['id' => $id])->asArray()->one();
         if(!$videoInfo){
             return [];
+        }
+
+        if($videoInfo['poster_url']) {
+            $videoInfo['poster'] = getenv('domain') . $videoInfo['poster_url'];
         }
 
         $key = 'video-detail-' . $id;
