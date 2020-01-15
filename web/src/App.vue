@@ -18,8 +18,8 @@
         </keep-alive>
         <router-view v-if="!this.$route.meta.keepAlive" @changeHeader="changeHeader"></router-view>
 
-        <back-to-top bottom="50px" right="20px">
-          <van-button size="mini" round plain type="danger" style="width: 2rem">
+        <back-to-top bottom="2rem" right="1rem">
+          <van-button size="mini" round plain type="danger" style="width: 2rem;height:2rem;">
             <van-icon name="arrow-up"></van-icon>
           </van-button>
         </back-to-top>
