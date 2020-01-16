@@ -52,9 +52,8 @@ class Video extends BaseMongo
     {
         return [
             [['desc', 'director', 'actors'], 'string'],
-            [['rate'], 'number'],
-            [['id','year', 'current_list_count', 'total_list_count', 'time', 'views', 'out_id', 'created_at', 'updated_at', 'search_count', 'node_id'], 'integer'],
-            [['title', 'poster', 'poster_url', 'otitle', 'type', 'area', 'category', 'language', 'source', 'note'], 'string', 'max' => 255],
+            [['id','year', 'current_list_count', 'total_list_count', 'views', 'created_at', 'updated_at', 'search_count', 'node_id'], 'integer'],
+            [['title', 'poster', 'poster_url', 'type', 'area', 'category', 'language', 'note'], 'string', 'max' => 255],
         ];
     }
 

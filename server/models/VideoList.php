@@ -66,7 +66,7 @@ class VideoList extends BaseMongo
 
     public static function insertOrUpdateList($params)
     {
-        $listExists = VideoList::findOne(['video_id' => $params['video_id'], 'list_num' => $params['list_num'], 'xianlu'=>$params['xianlu']]);
+        $listExists = VideoList::findOne(['video_id' => (int)$params['video_id'], 'list_num' => $params['list_num'], 'xianlu'=>$params['xianlu']]);
 
         if(!$listExists){
             $params['id'] = self::increment(self::collectionName());
@@ -75,9 +75,19 @@ class VideoList extends BaseMongo
             $listModel->setAttributes($params);
             $listModel->save(false);
         }else{
-            VideoList::updateAll($params,[
-                'id' => $listExists['id']
-            ]);
+            VideoList::updateAll(['play_url' => $params['play_url']],['id' => $listExists->id]);
         }
     }
 }
+//db.video.createIndex({"id":1})
+//db.video.createIndex({"node_id":1})
+//db.video.createIndex({"title":1})
+//db.video.createIndex({"created_at":1})
+//db.video.createIndex({"updated_at":1})
+//db.video.createIndex({"search_count":1})
+//
+//db.video_list.createIndex({"id":1})
+//db.video_list.createIndex({"video_id":1})
+//db.video_list.createIndex({"list_num":1})
+//db.video_list.createIndex({"created_at":1})
+//db.video_list.createIndex({"updated_at":1})
