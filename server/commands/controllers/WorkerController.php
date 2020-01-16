@@ -20,7 +20,7 @@ class WorkerController extends Controller{
 
     public function beforeAction($action)
     {
-        $this->stdout('开始运行：'. date('Y-m-d H:i:s') . PHP_EOL, Console::FG_GREEN);
+        $this->stdout('开始运行：'. date('Y-m-d H:i:s') . PHP_EOL);
         return parent::beforeAction($action);
     }
 
