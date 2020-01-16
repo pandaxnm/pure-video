@@ -20,12 +20,12 @@ use yii\db\ActiveRecord;
  * @property int $views
  * @property string $xianlu
  */
-class VideoList extends \yii\db\ActiveRecord
+class VideoList extends BaseMongo
 {
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function collectionName()
     {
         return 'video_list';
     }
@@ -42,35 +42,42 @@ class VideoList extends \yii\db\ActiveRecord
         ];
     }
 
-    public function behaviors()
-    {
-        return [
-            [
-                'class' => TimestampBehavior::className(),
-                'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
-                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
-                ],
-            ],
-        ];
-    }
-
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributes()
     {
         return [
-            'id' => 'ID',
-            'video_id' => 'Video ID',
-            'download_url' => 'Download Url',
-            'web_url' => 'Web Url',
-            'play_url' => 'Play Url',
-            'list_num' => 'List Num',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
-            'views' => 'Views',
-            'xianlu' => 'Xianlu',
+            '_id',
+            'id',
+            'video_id',
+            'download_url',
+            'web_url',
+            'play_url',
+            'list_num',
+            'created_at',
+            'updated_at',
+            'views',
+            'xianlu',
         ];
+    }
+
+
+
+    public static function insertOrUpdateList($params)
+    {
+        $listExists = VideoList::findOne(['video_id' => $params['video_id'], 'list_num' => $params['list_num'], 'xianlu'=>$params['xianlu']]);
+
+        if(!$listExists){
+            $params['id'] = self::increment(self::collectionName());
+            $params['created_at'] = time();
+            $listModel = new VideoList();
+            $listModel->setAttributes($params);
+            $listModel->save(false);
+        }else{
+            VideoList::updateAll($params,[
+                'id' => $listExists['id']
+            ]);
+        }
     }
 }

@@ -12,12 +12,12 @@ use Yii;
  * @property string $name
  * @property int $sort
  */
-class Node extends \yii\db\ActiveRecord
+class Node extends BaseMongo
 {
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function collectionName()
     {
         return 'node';
     }
@@ -36,13 +36,14 @@ class Node extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributes()
     {
         return [
-            'id' => 'ID',
-            'navi_id' => 'Navi ID',
-            'name' => 'Name',
-            'sort' => 'Sort',
+            '_id',
+            'id',
+            'navi_id',
+            'name',
+            'sort',
         ];
     }
 

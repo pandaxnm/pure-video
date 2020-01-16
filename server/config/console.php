@@ -14,6 +14,7 @@ $config = [
     ],
     'components' => [
         'db' => require __DIR__ . '/db.php',
+        'mongodb' => require(__DIR__ . '/mongodb.php'),
         'cache' => [
             'class' => 'yii\redis\Cache',
         ],

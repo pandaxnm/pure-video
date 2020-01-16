@@ -11,12 +11,12 @@ use Yii;
  * @property string $name
  * @property int $sort
  */
-class Navi extends \yii\db\ActiveRecord
+class Navi extends BaseMongo
 {
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function collectionName()
     {
         return 'navi';
     }
@@ -35,12 +35,13 @@ class Navi extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributes()
     {
         return [
-            'id' => 'ID',
-            'name' => 'Name',
-            'sort' => 'Sort',
+            '_id',
+            'id',
+            'name',
+            'sort',
         ];
     }
 

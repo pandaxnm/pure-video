@@ -38,7 +38,7 @@ class ServiceImage{
                 if(!$imgUrl){
                     continue;
                 }
-                echo $v['poster']. ' >>> ';
+                echo $v['title']. ' >>> ';
                 try{
                     $newUrl = $this->getImage($v['poster']);
                     if(!$newUrl) {

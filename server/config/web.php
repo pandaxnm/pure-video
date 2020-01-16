@@ -20,6 +20,7 @@ $config = [
             'cookieValidationKey' => 'nmmNTMIWHkBgndWKGwZTDFD8R2seO5f5',
         ],
         'db' => require __DIR__ . '/db.php',
+        'mongodb' => require(__DIR__ . '/mongodb.php'),
         'cache' => [
             'class' => 'yii\redis\Cache',
         ],

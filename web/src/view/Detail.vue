@@ -5,24 +5,19 @@
         <div v-else id="detail-list">
             <movie-detail-card :video="detail"></movie-detail-card>
             <div class="list">
-                <div v-if="detail.type === 'movie'">
-                    <van-button block size="small" type="primary" class="list-btn" @click="toPlay(detail.id, list[0].list_num)">播放</van-button>
-                </div>
-                <div v-else>
-                    <van-tabs v-model="active">
-                        <van-tab title="剧集">
-                            <div class="list-container">
-                                <div v-for="(item, index) in list" class="list-row" :key="index">
-                                    <van-button size="small" plain type="primary" v-if="item.list_num == lastWatchNum" class="list-btn" @click="toPlay(detail.id, item.list_num)">{{item.list_num}}</van-button>
-                                    <van-button size="small" v-else class="list-btn" @click="toPlay(item.video_id,item.list_num)">{{item.list_num}}</van-button>
-                                </div>
+                <van-tabs v-model="active">
+                    <van-tab title="剧集">
+                        <div class="list-container">
+                            <div v-for="(item, index) in list" class="list-row" :key="index">
+                                <van-button size="small" plain type="primary" v-if="item.list_num == lastWatchNum" class="list-btn" @click="toPlay(detail.id, item.list_num)">{{item.list_num}}</van-button>
+                                <van-button size="small" v-else class="list-btn" @click="toPlay(item.video_id,item.list_num)">{{item.list_num}}</van-button>
                             </div>
-                        </van-tab>
-                        <van-tab title="简介">
-                            <div class="desc">{{detail.desc}}</div>
-                        </van-tab>
-                    </van-tabs>
-                </div>
+                        </div>
+                    </van-tab>
+                    <van-tab title="简介">
+                        <div class="desc">{{detail.desc}}</div>
+                    </van-tab>
+                </van-tabs>
             </div>
         </div>
     </div>
@@ -79,7 +74,7 @@
             getDetail() {
                 this.isLoading = true;
                 this.error = false;
-                this.$get(this.API.detail, { id: this.$route.query.id, from: this.$route.query.from ? this.$route.query.from : ''})
+                this.$get(this.API.detail, { id: parseInt(this.$route.query.id), from: this.$route.query.from ? this.$route.query.from : ''})
                     .then((res) => {
                         this.isLoading = false;
                         if(res.retCode === 0){

@@ -41,40 +41,34 @@ class ServiceVideo extends \yii\db\ActiveRecord{
         $query = Video::find();
         $countQuery = clone $query;
         $pages = new Pagination([
-            'totalCount' => $countQuery->where($where)->count(Video::tableName() . '.id'),
+            'totalCount' => $countQuery->where($where)->count(Video::collectionName() . '.id'),
             'pageSize' => intval($this->settings['index_pagesize']),
             'pageParam' => 'p'
         ]);
 
-        $key = 'video-index-' . '-' . $naviId . '-' . $pages->getPage();
-        $cache = Yii::$app->getCache();
         $totalPage = ceil($pages->totalCount / $this->settings['index_pagesize']);
 
-        if(!$this->settings['cache_enable'] || !$data = $cache->get($key)){
-            $videos = $query
-                ->where($where)
-                ->orderBy(['updated_at' => SORT_DESC,'created_at'=>SORT_DESC])
+        $videos = $query
+            ->where($where)
+            ->orderBy(['updated_at' => SORT_DESC,'created_at'=>SORT_DESC])
 //                ->orderBy(['id' => SORT_DESC])
-                ->offset($pages->offset)
-                ->limit($pages->limit)
-                ->asArray()
-                ->all();
+            ->offset($pages->offset)
+            ->limit($pages->limit)
+            ->asArray()
+            ->all();
 
-            foreach ($videos as &$video) {
-                if($video['poster_url']) {
-                    $video['poster'] = getenv('domain') . $video['poster_url'];
-                }
+        foreach ($videos as &$video) {
+            if($video['poster_url']) {
+                $video['poster'] = getenv('domain') . $video['poster_url'];
             }
-
-            $data = [
-                'list' => $videos,
-                'totalCount' => $pages->totalCount,
-                'totalPage' => $totalPage,
-            ];
-
-            $dep = new DbDependency(['sql'=>'SELECT MAX(updated_at) FROM '. Video::tableName()]);
-            $cache->set($key, $data, intval($this->settings['cache_time'])*60, $dep);
         }
+
+        $data = [
+            'list' => $videos,
+            'totalCount' => $pages->totalCount,
+            'totalPage' => $totalPage,
+        ];
+
 
         return $data;
     }
@@ -96,27 +90,21 @@ class ServiceVideo extends \yii\db\ActiveRecord{
             $videoInfo['poster'] = getenv('domain') . $videoInfo['poster_url'];
         }
 
-        $key = 'video-detail-' . $id;
-        $cache = Yii::$app->getCache();
-
-        if(!$this->settings['cache_enable'] || !$data = $cache->get($key)) {
-            //获取剧集
-            $list = VideoList::find()
-                ->where(['video_id' => $id])
-                ->orderBy(['id' => SORT_ASC])
-                ->asArray()
-                ->all();
-            $newList = [];
-            foreach ($list as $v){
-                $newList[$v['xianlu']][] = $v;
-            }
-            $data = [
-                'detail' => $videoInfo,
-                'list' => array_values($newList),
-            ];
-            $dep = new DbDependency(['sql'=>'SELECT updated_at,current_list_count FROM '. Video::tableName()]);
-            $cache->set($key, $data, intval($this->settings['cache_time'])*60, $dep);
+        //获取剧集
+        $list = VideoList::find()
+            ->where(['video_id' => (int)$id])
+            ->orderBy(['id' => SORT_ASC])
+            ->asArray()
+            ->all();
+        $newList = [];
+        foreach ($list as $v){
+            $newList[$v['xianlu']][] = $v;
         }
+
+        $data = [
+            'detail' => $videoInfo,
+            'list' => array_values($newList),
+        ];
 
         $updateCounters = [
             'views' => 1,
@@ -138,24 +126,18 @@ class ServiceVideo extends \yii\db\ActiveRecord{
      */
     public function getPlayInfo($id, $listNum)
     {
-        $key = 'video-play-info-' . $id;
-        $cache = Yii::$app->getCache();
 
-        if(!$this->settings['cache_enable'] || !$data = $cache->get($key)){
-            $detail = $this->getVideoDetail($id);
-            $lines = VideoList::find()
-                ->where(['video_id' => $id, 'list_num' => $listNum])
-                ->orderBy(['list_num' => SORT_ASC])
-                ->asArray()
-                ->all();
+        $detail = $this->getVideoDetail($id);
+        $lines = VideoList::find()
+            ->where(['video_id' => $id, 'list_num' => $listNum])
+            ->orderBy(['list_num' => SORT_ASC])
+            ->asArray()
+            ->all();
 
-            $data = [
-                'info' => $detail,
-                'lines' => $lines
-            ];
-            $dep = new DbDependency(['sql'=>'SELECT MAX(updated_at),SUM(list_num) FROM '. VideoList::tableName() . ' where video_id=' . $id]);
-            $cache->set($key, $data, intval($this->settings['cache_time'])*60, $dep);
-        }
+        $data = [
+            'info' => $detail,
+            'lines' => $lines
+        ];
 
 
         return $data;
@@ -173,7 +155,7 @@ class ServiceVideo extends \yii\db\ActiveRecord{
         $countQuery = clone $query;
 
         $pages = new Pagination([
-            'totalCount' => $countQuery->count(Video::tableName() . '.id'),
+            'totalCount' => $countQuery->count(Video::collectionName() . '.id'),
             'pageSize' => intval($this->settings['index_pagesize']),
             'pageParam' => 'p'
         ]);
@@ -251,7 +233,7 @@ class ServiceVideo extends \yii\db\ActiveRecord{
                 $id ++;
             }
 
-            $dep = new DbDependency(['sql'=>'SELECT MAX(updated_at) FROM '. VideoList::tableName()]);
+            $dep = new DbDependency(['sql'=>'SELECT MAX(updated_at) FROM '. VideoList::collectionName()]);
             $cache->set($key, $data, intval($this->settings['cache_time'])*60, $dep);
         }
 
@@ -267,7 +249,7 @@ class ServiceVideo extends \yii\db\ActiveRecord{
 
             $data = Banner::find()->asArray()->all();
 
-            $dep = new DbDependency(['sql'=>'SELECT MAX(created_at) FROM '. Banner::tableName()]);
+            $dep = new DbDependency(['sql'=>'SELECT MAX(created_at) FROM '. Banner::collectionName()]);
             $cache->set($key, $data, intval($this->settings['cache_time'])*60, $dep);
         }
 

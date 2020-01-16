@@ -35,12 +35,12 @@ use yii\db\ActiveRecord;
  * @property int $search_count 搜索次数
  * @property int $node_id
  */
-class Video extends \yii\db\ActiveRecord
+class Video extends BaseMongo
 {
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function collectionName()
     {
         return 'video';
     }
@@ -53,55 +53,61 @@ class Video extends \yii\db\ActiveRecord
         return [
             [['desc', 'director', 'actors'], 'string'],
             [['rate'], 'number'],
-            [['year', 'current_list_count', 'total_list_count', 'time', 'views', 'out_id', 'created_at', 'updated_at', 'search_count', 'node_id'], 'integer'],
+            [['id','year', 'current_list_count', 'total_list_count', 'time', 'views', 'out_id', 'created_at', 'updated_at', 'search_count', 'node_id'], 'integer'],
             [['title', 'poster', 'poster_url', 'otitle', 'type', 'area', 'category', 'language', 'source', 'note'], 'string', 'max' => 255],
-        ];
-    }
-
-    public function behaviors()
-    {
-        return [
-            [
-                'class' => TimestampBehavior::className(),
-                'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
-                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
-                ],
-            ],
         ];
     }
 
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributes()
     {
         return [
-            'id' => 'ID',
-            'title' => 'Title',
-            'poster' => 'Poster',
-            'poster_url' => 'Poster Url',
-            'otitle' => 'Otitle',
-            'desc' => 'Desc',
-            'director' => 'Director',
-            'actors' => 'Actors',
-            'rate' => 'Rate',
-            'type' => 'Type',
-            'year' => 'Year',
-            'current_list_count' => 'Current List Count',
-            'total_list_count' => 'Total List Count',
-            'time' => 'Time',
-            'views' => 'Views',
-            'area' => 'Area',
-            'category' => 'Category',
-            'out_id' => 'Out ID',
-            'created_at' => 'Created At',
-            'updated_at' => 'Updated At',
-            'language' => 'Language',
-            'source' => 'Source',
-            'note' => 'Note',
-            'search_count' => 'Search Count',
-            'node_id' => 'Node Id'
+            '_id',
+            'id',
+            'title',
+            'poster',
+            'poster_url',
+            'desc',
+            'director',
+            'actors',
+            'type',
+            'year',
+            'current_list_count',
+            'total_list_count',
+            'views',
+            'area',
+            'category',
+            'created_at',
+            'updated_at',
+            'language',
+            'note',
+            'search_count',
+            'node_id'
         ];
     }
+
+    public static function insertOrUpdateVideo($data)
+    {
+        $model = Video::findOne(['title' => $data['title']]);
+        if(!$model){
+            $data['created_at'] = time();
+            $data['poster_url'] = '';
+            $data['search_count'] = 0;
+            $data['views'] = 0;
+            $data['id'] = self::increment(self::collectionName());
+            $model = new Video();
+            $model->setAttributes($data);
+            $model->save(false);
+            $vid = $data['id'];
+        }else {
+            $model->note = $data['note'];
+            $model->save();
+            $vid = $model->id;
+        }
+        return $vid;
+    }
+
+
 }

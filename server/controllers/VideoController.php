@@ -44,7 +44,7 @@ class VideoController extends BaseController {
         $params = $this->getRequest();
         $ret = Utils::verifyParams($params, [
             'REQUIRED' => [
-                'id' => 'string'
+                'id' => 'int'
             ],
             'OPTIONAL' => [
                 'from' => 'string'
@@ -71,7 +71,7 @@ class VideoController extends BaseController {
         $params = $this->getRequest();
         $ret = Utils::verifyParams($params, [
             'REQUIRED' => [
-                'id' => 'string',
+                'id' => 'int',
                 'list_num' => 'string'
             ]
         ]);

@@ -91,23 +91,22 @@ class ServiceVideo{
             //插入影片
             $nodeId = $this->getNodeId(trim($video->type));
             $videoParams = [
-                'source' => 'zd',
-                'out_id' => (int)$video->id,
                 'updated_at' => (int)strtotime($video->last),
-                'title' => $video->name,
-                'category' => $video->type,
-                'node_id' => $nodeId,
-                'poster' => $video->pic,
-                'language' => $video->lang ? $video->lang : '',
-                'area' => $video->area ? $video->area : '',
-                'year' => $video->year ? $video->year : '',
+                'title' => preg_replace('# #','',(string)$video->name),
+                'category' => (string)$video->type,
+                'node_id' => (int)$nodeId,
+                'poster' => $video->pic ? (string)$video->pic : '',
+                'language' => $video->lang ? (string)$video->lang : '',
+                'area' => $video->area ? (string)$video->area : '',
+                'year' => $video->year ? (string)$video->year : '',
                 'current_list_count' => (int)$video->state,
-                'actors' => $video->actor ? $video->actor : '',
-                'director' => $video->director ? $video->director : '',
+                'total_list_count' => 0,
+                'actors' => $video->actor ? (string)$video->actor : '',
+                'director' => $video->director ? (string)$video->director : '',
                 'desc' => $video->des ? strip_tags($video->des) : '',
                 'note' => $video->note ? $this->parseNote((string)$video->note) : '',
             ];
-            $vid = $this->insertOrUpdateVideo($videoParams);
+            $vid = Video::insertOrUpdateVideo($videoParams);
             $this->count++;
             Console::output($this->count . '：' . $video->name);
             //插入影片剧集
@@ -119,7 +118,7 @@ class ServiceVideo{
                         foreach ($listDetails as $ld){
                             $ld['video_id'] = $vid;
                             $ld['xianlu'] = $xianlu;
-                            $this->insertOrUpdateList($ld);
+                            VideoList::insertOrUpdateList($ld);
                         }
                     }
                 }
@@ -167,40 +166,6 @@ class ServiceVideo{
         $rep = ['版', '1280', '1080', '1280p', '1080p', '1280P', '1080P'];
         $str = str_replace( $rep, '', $str);
         return $str;
-    }
-
-
-    public function insertOrUpdateVideo($data)
-    {
-        $exists = Video::findOne(['title' => $data['title']]);
-        if(!$exists){
-            $data['created_at'] = time();
-            $model = new Video();
-            $model->setAttributes($data);
-            $model->save(false);
-            $vid = $model->attributes['id'];
-        }else {
-            Video::updateAll($data, ['id' => $exists['id']]);
-            $vid = $exists['id'];
-        }
-        return $vid;
-    }
-
-
-    public function insertOrUpdateList($params)
-    {
-        $listExists = VideoList::findOne(['video_id' => $params['video_id'], 'list_num' => $params['list_num'], 'xianlu'=>$params['xianlu']]);
-
-        if(!$listExists){
-            $params['created_at'] = time();
-            $listModel = new VideoList();
-            $listModel->setAttributes($params);
-            $listModel->save(false);
-        }else{
-            VideoList::updateAll($params,[
-                'id' => $listExists['id']
-            ]);
-        }
     }
 
     /**

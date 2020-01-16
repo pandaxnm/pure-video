@@ -112,7 +112,7 @@
             getPlayInfo() {
                 this.isLoading = true;
                 this.error = false;
-                this.$get(this.API.playInfo, { id: this.$route.query.id, list_num: this.$route.query.list_num})
+                this.$get(this.API.playInfo, { id: parseInt(this.$route.query.id), list_num: this.$route.query.list_num})
                     .then((res) => {
                         this.isLoading = false;
                         if(res.retCode === 0){
@@ -123,7 +123,7 @@
                         }
                     }).catch((e) => {
                         this.error = true;
-                        this.errorMsg = res.retMsg;
+                        this.errorMsg = e.toString();
                 })
             },
             //更换线路
@@ -157,9 +157,12 @@
                     clickLeft: () => {this.$router.go(-1)},
                     rightText: '',
                     clickRight: '',
-                }
+                };
                 this.$emit('changeHeader', data)
             },
+            getDetail() {
+                window.location.reload();
+            }
         }
     }
 

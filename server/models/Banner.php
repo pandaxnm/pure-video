@@ -13,12 +13,12 @@ use Yii;
  * @property int $video_id
  * @property int $created_at
  */
-class Banner extends \yii\db\ActiveRecord
+class Banner extends BaseMongo
 {
     /**
      * {@inheritdoc}
      */
-    public static function tableName()
+    public static function collectionName()
     {
         return 'banner';
     }
@@ -38,14 +38,15 @@ class Banner extends \yii\db\ActiveRecord
     /**
      * {@inheritdoc}
      */
-    public function attributeLabels()
+    public function attributes()
     {
         return [
-            'id' => 'ID',
-            'title' => 'Title',
-            'url' => 'Url',
-            'video_id' => 'Video ID',
-            'created_at' => 'Created At',
+            '_id',
+            'id',
+            'title',
+            'url',
+            'video_id',
+            'created_at',
         ];
     }
 }
