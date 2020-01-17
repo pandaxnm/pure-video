@@ -58,19 +58,6 @@ class Video extends \yii\db\ActiveRecord
         ];
     }
 
-    public function behaviors()
-    {
-        return [
-            [
-                'class' => TimestampBehavior::className(),
-                'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
-                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
-                ],
-            ],
-        ];
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -103,5 +90,22 @@ class Video extends \yii\db\ActiveRecord
             'search_count' => 'Search Count',
             'node_id' => 'Node Id'
         ];
+    }
+
+
+    public static function insertOrUpdateVideo($data)
+    {
+        $exists = Video::findOne(['title' => $data['title']]);
+        if(!$exists){
+            $data['created_at'] = time();
+            $model = new Video();
+            $model->setAttributes($data);
+            $model->save(false);
+            $vid = $model->attributes['id'];
+        }else {
+            Video::updateAll($data, ['id' => $exists['id']]);
+            $vid = $exists['id'];
+        }
+        return $vid;
     }
 }

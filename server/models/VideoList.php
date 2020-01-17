@@ -42,19 +42,6 @@ class VideoList extends \yii\db\ActiveRecord
         ];
     }
 
-    public function behaviors()
-    {
-        return [
-            [
-                'class' => TimestampBehavior::className(),
-                'attributes' => [
-                    ActiveRecord::EVENT_BEFORE_INSERT => ['created_at', 'updated_at'],
-                    ActiveRecord::EVENT_BEFORE_UPDATE => ['updated_at'],
-                ],
-            ],
-        ];
-    }
-
     /**
      * {@inheritdoc}
      */
@@ -72,5 +59,23 @@ class VideoList extends \yii\db\ActiveRecord
             'views' => 'Views',
             'xianlu' => 'Xianlu',
         ];
+    }
+
+
+
+    public static function insertOrUpdateList($params)
+    {
+        $listExists = VideoList::findOne(['video_id' => $params['video_id'], 'list_num' => $params['list_num'], 'xianlu'=>$params['xianlu']]);
+
+        if(!$listExists){
+            $params['created_at'] = time();
+            $listModel = new VideoList();
+            $listModel->setAttributes($params);
+            $listModel->save(false);
+        }else{
+            VideoList::updateAll($params,[
+                'id' => $listExists['id']
+            ]);
+        }
     }
 }
