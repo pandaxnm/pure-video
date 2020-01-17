@@ -10,15 +10,15 @@
             <div v-else>
                 <div class="video-name-list">
                     <span>正在播放 {{detail.title}} </span>
-                    <span v-if="detail.type">{{$route.query.list_num}}</span>
-                    <span v-if="lastWatchNum"> - {{lastWatchNum}}</span>
+<!--                    <span v-if="detail.type">{{$route.query.list_num}}</span>-->
+<!--                    <span v-if="lastWatchNum"> - {{list[currentLine][lastWatchNum-1]['list_num']}}</span>-->
                 </div>
                 <div id="lines">
                     <van-tabs v-if="list.length > 1" style="margin-top:.5rem;margin-bottom: 1rem"  swipeable v-model="currentLine" >
                         <van-tab v-for="(it, index) in list" :title="`播放源`+(index+1)" :key="index">
                             <div class="list-container">
                                 <div v-for="(item, index2) in list[currentLine]" class="list-row" :key="index2">
-                                    <van-button size="small" plain type="primary" v-if="parseInt(index2+1) === parseInt(lastWatchNum)" class="list-btn" @click="toPlay(detail.id, index2+1)">{{item.list_num}}</van-button>
+                                    <van-button size="small" plain type="primary" v-if="parseInt(index2+1) === parseInt(lastWatchNum)" class="list-btn" @click="changeListNum(index2+1,item.play_url)">{{item.list_num}}</van-button>
                                     <van-button size="small" v-else class="list-btn" @click="changeListNum(index2+1,item.play_url)">{{item.list_num}}</van-button>
                                 </div>
                             </div>
