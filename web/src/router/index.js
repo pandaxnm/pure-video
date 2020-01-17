@@ -53,9 +53,9 @@ router.beforeEach((to, from, next) => {
     if (title) {
         document.title = 'Pure Video - ' + title;
     }
-    if(to.name === 'Detail'){
-        to.meta.keepAlive = from.name === 'Video';
-    }
+    // if(to.name === 'Detail'){
+    //     to.meta.keepAlive = from.name === 'Video';
+    // }
     if (window._hmt) {
         if (to.path && process.env.NODE_ENV !== 'development') {
             window._hmt.push(['_trackPageview', '/#' + to.fullPath])

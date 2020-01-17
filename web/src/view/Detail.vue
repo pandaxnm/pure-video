@@ -13,8 +13,8 @@
                         <van-tab title="剧集">
                             <div class="list-container">
                                 <div v-for="(item, index) in list" class="list-row" :key="index">
-                                    <van-button size="small" plain type="primary" v-if="item.list_num == lastWatchNum" class="list-btn" @click="toPlay(detail.id, item.list_num)">{{item.list_num}}</van-button>
-                                    <van-button size="small" v-else class="list-btn" @click="toPlay(item.video_id,item.list_num)">{{item.list_num}}</van-button>
+                                    <van-button size="small" plain type="primary" v-if="parseInt(index+1) === parseInt(lastWatchNum)" class="list-btn" @click="toPlay(detail.id, item.list_num)">{{item.list_num}}</van-button>
+                                    <van-button size="small" v-else class="list-btn" @click="toPlay(item.video_id,index+1)">{{item.list_num}}</van-button>
                                 </div>
                             </div>
                         </van-tab>

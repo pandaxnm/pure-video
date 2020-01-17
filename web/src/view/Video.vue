@@ -14,33 +14,25 @@
                     <span v-if="lastWatchNum"> - {{lastWatchNum}}</span>
                 </div>
                 <div id="lines">
-<!--                    <div>-->
-<!--                        <van-tag plain>播放源</van-tag>-->
-<!--                    </div>-->
-<!--                    <van-row style="margin-top:.5rem;margin-bottom: 1rem">-->
-<!--                        <van-col v-for="(item, index) in lines" span="6" class="lines-row" :key="index">-->
-<!--                            <van-button size="small" plain type="primary" v-if="index == currentLine" class="lines-btn" @click="toPlay(detail.id, item.list_num)"><span class="source-item">{{index+1}}</span></van-button>-->
-<!--                            <van-button size="small" v-else class="lines-btn" @click="changeLine(item.play_url, index)"><span class="source-item">{{index+1}}</span></van-button>-->
-<!--                        </van-col>-->
-<!--                    </van-row>-->
-                    <van-tabs style="margin-top:.5rem;margin-bottom: 1rem"  swipeable v-model="currentLine" >
-                        <van-tab v-for="(line, index) in lines" :title="`播放源`+(index+1)" :key="index">
+                    <van-tabs v-if="list.length > 1" style="margin-top:.5rem;margin-bottom: 1rem"  swipeable v-model="currentLine" >
+                        <van-tab v-for="(it, index) in list" :title="`播放源`+(index+1)" :key="index">
                             <div class="list-container">
                                 <div v-for="(item, index2) in list[currentLine]" class="list-row" :key="index2">
-                                    <van-button size="small" plain type="primary" v-if="item.list_num == lastWatchNum" class="list-btn" @click="toPlay(detail.id, item.list_num)">{{item.list_num}}</van-button>
-                                    <van-button size="small" v-else class="list-btn" @click="changeListNum(item.list_num,item.play_url)">{{item.list_num}}</van-button>
+                                    <van-button size="small" plain type="primary" v-if="parseInt(index2+1) === parseInt(lastWatchNum)" class="list-btn" @click="toPlay(detail.id, index2+1)">{{item.list_num}}</van-button>
+                                    <van-button size="small" v-else class="list-btn" @click="changeListNum(index2+1,item.play_url)">{{item.list_num}}</van-button>
                                 </div>
                             </div>
                         </van-tab>
                     </van-tabs>
+                    <div v-else>
+                        <div class="list-container">
+                            <div v-for="(item, index2) in list[currentLine]" class="list-row" :key="index2">
+                                <van-button size="small" plain type="primary" v-if="parseInt(index2+1) === parseInt(lastWatchNum)" class="list-btn" @click="toPlay(detail.id, index2+1)">{{item.list_num}}</van-button>
+                                <van-button size="small" v-else class="list-btn" @click="changeListNum(index2+1,item.play_url)">{{item.list_num}}</van-button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
-<!--                <div style="margin: 1rem 0;height:0.01rem;background-color: #ddd"></div>-->
-
-<!--                <div>-->
-<!--                    <van-tag plain>剧集</van-tag>-->
-
-<!--                </div>-->
 
             </div>
         </div>
@@ -86,7 +78,6 @@
                 errorMsg: '',
                 detail: [],
                 list: [],
-                lines: [],
                 lastWatchNum: 0,
                 currentLine: 0,
                 // showChangeLineModal: false,
@@ -112,30 +103,26 @@
             getPlayInfo() {
                 this.isLoading = true;
                 this.error = false;
-                this.$get(this.API.playInfo, { id: this.$route.query.id, list_num: this.$route.query.list_num})
+                this.$get(this.API.detail, { id: this.$route.query.id, from: ''})
                     .then((res) => {
                         this.isLoading = false;
                         if(res.retCode === 0){
-                            this.detail = res.data.info.detail;
-                            this.list = res.data.info.list;
-                            this.lines = res.data.lines;
+                            this.detail = res.data.detail;
+                            this.list = res.data.list;
                             this.changeLine()
                         }
                     }).catch((e) => {
                         this.error = true;
-                        this.errorMsg = res.retMsg;
+                        this.errorMsg = e.toString();
                 })
             },
             //更换线路
-            changeLine(url = '', index = 0) {
-                // console.log(url)
-                if(!url){
-                     url = this.lines[0].play_url;
-                }
+            changeLine(index = 0) {
+                this.currentLine = index;
+                let url = this.list[index][0].play_url;
                 this.player.switchVideo({
                     url: url,
                 });
-                this.currentLine = index;
                 this.player.play();
             },
             //更换剧集
