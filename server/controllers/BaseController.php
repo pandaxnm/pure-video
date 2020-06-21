@@ -14,18 +14,10 @@ use yii;
 
 class BaseController extends Controller {
 
-    public $settings;
-
     public $requestId = null;
     protected $startDoTime = 0;//开始时间
     protected $endDoTime = 0;//结束时间
     protected $doTimeLog = true;
-
-    public function init()
-    {
-        $this->settings = Yii::$app->params['settings'];
-    }
-
 
     public function beforeAction($action)
     {
@@ -86,13 +78,13 @@ class BaseController extends Controller {
         }
 
         $cryptText = base64_decode($encryptedData);
-        $decrypted =  trim(openssl_decrypt($cryptText, 'aes-128-cbc', $this->settings['key'], OPENSSL_RAW_DATA,$this->settings['iv']));
+        $decrypted =  trim(openssl_decrypt($cryptText, 'aes-128-cbc', $_ENV['aes_key'], OPENSSL_RAW_DATA,$_ENV['aes_iv']));
 
         return json_decode($decrypted, true);
     }
 
     private function encrypt($data) {
-        $cryptText = openssl_encrypt($data,"aes-128-cbc",$this->settings['key'],OPENSSL_RAW_DATA,$this->settings['iv']);
+        $cryptText = openssl_encrypt($data,"aes-128-cbc",$_ENV['aes_key'],OPENSSL_RAW_DATA,$_ENV['aes_iv']);
         return base64_encode($cryptText);
     }
 
@@ -103,7 +95,7 @@ class BaseController extends Controller {
      */
     public function decrypt($data) {
         $cryptText = base64_decode($data);
-        $decrypted =  trim(openssl_decrypt($cryptText, 'aes-128-cbc', $this->settings['key'], OPENSSL_RAW_DATA,$this->settings['iv']));
+        $decrypted =  trim(openssl_decrypt($cryptText, 'aes-128-cbc', $_ENV['aes_key'], OPENSSL_RAW_DATA,$_ENV['aes_iv']));
         return json_decode($decrypted, true);
     }
 

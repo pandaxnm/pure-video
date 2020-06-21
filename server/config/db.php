@@ -2,10 +2,10 @@
 
 return [
     'class' => 'yii\db\Connection',
-    'dsn' => 'mysql:host=' . getenv('db.host') .';dbname=' . getenv('db.dbname'),
-    'username' => getenv('db.username'),
-    'password' => getenv('db.password'),
-    'charset' => getenv('db.charset'),
+    'dsn' => 'mysql:host=' . $_ENV['db.host'] .';dbname=' . $_ENV['db.dbname'],
+    'username' => $_ENV['db.username'],
+    'password' => $_ENV['db.password'],
+    'charset' => $_ENV['db.charset'],
 
     // Schema cache options (for production environment)
     //'enableSchemaCache' => true,
