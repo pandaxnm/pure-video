@@ -8,7 +8,7 @@
 
 return [
     'class' => 'yii\redis\Connection',
-    'hostname' => getenv('redis.hostname'),
-    'port' => getenv('redis.port'),
-    'database' => getenv('redis.database'),
+    'hostname' => $_ENV['redis.hostname'],
+    'port' => $_ENV['redis.port'],
+    'database' => $_ENV['redis.database'],
 ];
