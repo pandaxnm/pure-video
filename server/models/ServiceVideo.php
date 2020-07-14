@@ -8,20 +8,13 @@
 namespace app\models;
 
 use Yii;
+use yii\base\Model;
 use yii\caching\DbDependency;
 use yii\data\Pagination;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
 
-class ServiceVideo extends \yii\db\ActiveRecord{
-
-    private $settings;
-
-    public function __construct(array $config = [])
-    {
-        $this->settings = Yii::$app->params['settings'];
-        parent::__construct($config);
-    }
+class ServiceVideo extends Model {
 
     /**
      * 首页视频
@@ -42,15 +35,15 @@ class ServiceVideo extends \yii\db\ActiveRecord{
         $countQuery = clone $query;
         $pages = new Pagination([
             'totalCount' => $countQuery->where($where)->count(Video::tableName() . '.id'),
-            'pageSize' => intval($this->settings['index_pagesize']),
+            'pageSize' => intval($_ENV['index_pagesize']),
             'pageParam' => 'p'
         ]);
 
         $key = 'video-index-' . '-' . $naviId . '-' . $pages->getPage();
         $cache = Yii::$app->getCache();
-        $totalPage = ceil($pages->totalCount / $this->settings['index_pagesize']);
+        $totalPage = ceil($pages->totalCount / $_ENV['index_pagesize']);
 
-        if(!$this->settings['cache_enable'] || !$data = $cache->get($key)){
+        if(!$_ENV['cache_enable'] || !$data = $cache->get($key)){
             $videos = $query
                 ->where($where)
                 ->orderBy(['updated_at' => SORT_DESC,'created_at'=>SORT_DESC])
@@ -62,7 +55,7 @@ class ServiceVideo extends \yii\db\ActiveRecord{
 
             foreach ($videos as &$video) {
                 if($video['poster_url']) {
-                    $video['poster'] = getenv('domain') . $video['poster_url'];
+                    $video['poster'] = $_ENV['domain'] . $video['poster_url'];
                 }
             }
 
@@ -73,7 +66,7 @@ class ServiceVideo extends \yii\db\ActiveRecord{
             ];
 
             $dep = new DbDependency(['sql'=>'SELECT MAX(updated_at) FROM '. Video::tableName()]);
-            $cache->set($key, $data, intval($this->settings['cache_time'])*60, $dep);
+            $cache->set($key, $data, intval($_ENV['cache_time'])*60, $dep);
         }
 
         return $data;
@@ -93,13 +86,13 @@ class ServiceVideo extends \yii\db\ActiveRecord{
         }
 
         if($videoInfo['poster_url']) {
-            $videoInfo['poster'] = getenv('domain') . $videoInfo['poster_url'];
+            $videoInfo['poster'] = $_ENV['domain'] . $videoInfo['poster_url'];
         }
 
         $key = 'video-detail-' . $id;
         $cache = Yii::$app->getCache();
 
-        if(!$this->settings['cache_enable'] || !$data = $cache->get($key)) {
+        if(!$_ENV['cache_enable'] || !$data = $cache->get($key)) {
             //获取剧集
             $list = VideoList::find()
                 ->where(['video_id' => $id])
@@ -115,7 +108,7 @@ class ServiceVideo extends \yii\db\ActiveRecord{
                 'list' => array_values($newList),
             ];
             $dep = new DbDependency(['sql'=>'SELECT updated_at,current_list_count FROM '. Video::tableName()]);
-            $cache->set($key, $data, intval($this->settings['cache_time'])*60, $dep);
+            $cache->set($key, $data, intval($_ENV['cache_time'])*60, $dep);
         }
 
         $updateCounters = [
@@ -141,7 +134,7 @@ class ServiceVideo extends \yii\db\ActiveRecord{
         $key = 'video-play-info-' . $id;
         $cache = Yii::$app->getCache();
 
-        if(!$this->settings['cache_enable'] || !$data = $cache->get($key)){
+        if(!$_ENV['cache_enable'] || !$data = $cache->get($key)){
             $detail = $this->getVideoDetail($id);
             $lines = VideoList::find()
                 ->where(['video_id' => $id, 'list_num' => $listNum])
@@ -154,7 +147,7 @@ class ServiceVideo extends \yii\db\ActiveRecord{
                 'lines' => $lines
             ];
             $dep = new DbDependency(['sql'=>'SELECT MAX(updated_at),SUM(list_num) FROM '. VideoList::tableName() . ' where video_id=' . $id]);
-            $cache->set($key, $data, intval($this->settings['cache_time'])*60, $dep);
+            $cache->set($key, $data, intval($_ENV['cache_time'])*60, $dep);
         }
 
 
@@ -174,11 +167,11 @@ class ServiceVideo extends \yii\db\ActiveRecord{
 
         $pages = new Pagination([
             'totalCount' => $countQuery->count(Video::tableName() . '.id'),
-            'pageSize' => intval($this->settings['index_pagesize']),
+            'pageSize' => intval($_ENV['index_pagesize']),
             'pageParam' => 'p'
         ]);
 
-        $totalPage = ceil($pages->totalCount / $this->settings['index_pagesize']);
+        $totalPage = ceil($pages->totalCount / $_ENV['index_pagesize']);
 
         $videos = $query->orderBy(['updated_at' => SORT_DESC])
             ->offset($pages->offset)
@@ -205,7 +198,7 @@ class ServiceVideo extends \yii\db\ActiveRecord{
         $key = 'hot-list';
         $cache = Yii::$app->getCache();
 
-        if(!$this->settings['cache_enable'] || !$data = $cache->get($key)) {
+        if(!$_ENV['cache_enable'] || !$data = $cache->get($key)) {
             $videos = Video::find()
                 ->select(['id', 'title', 'search_count'])
                 ->where(['>', 'search_count', 0])
@@ -218,7 +211,7 @@ class ServiceVideo extends \yii\db\ActiveRecord{
                 'list' => $videos,
             ];
 
-            $cache->set($key, $data, intval($this->settings['cache_time'])*60);
+            $cache->set($key, $data, intval($_ENV['cache_time'])*60);
         }
 
         return $data;
@@ -234,7 +227,7 @@ class ServiceVideo extends \yii\db\ActiveRecord{
         $key = 'video-categories';
         $cache = Yii::$app->getCache();
 
-        if(!$this->settings['cache_enable'] || !$data = $cache->get($key)) {
+        if(!$_ENV['cache_enable'] || !$data = $cache->get($key)) {
             $query = new Query();
             $categories = $query->select(['category'])->from('video')->groupBy(['category'])->all();
             $categories = ArrayHelper::getColumn($categories, 'category');
@@ -252,7 +245,7 @@ class ServiceVideo extends \yii\db\ActiveRecord{
             }
 
             $dep = new DbDependency(['sql'=>'SELECT MAX(updated_at) FROM '. VideoList::tableName()]);
-            $cache->set($key, $data, intval($this->settings['cache_time'])*60, $dep);
+            $cache->set($key, $data, intval($_ENV['cache_time'])*60, $dep);
         }
 
         return $data;
@@ -263,12 +256,12 @@ class ServiceVideo extends \yii\db\ActiveRecord{
         $key = 'video-banners';
         $cache = Yii::$app->getCache();
 
-        if(!$this->settings['cache_enable'] || !$data = $cache->get($key)) {
+        if(!$_ENV['cache_enable'] || !$data = $cache->get($key)) {
 
             $data = Banner::find()->asArray()->all();
 
             $dep = new DbDependency(['sql'=>'SELECT MAX(created_at) FROM '. Banner::tableName()]);
-            $cache->set($key, $data, intval($this->settings['cache_time'])*60, $dep);
+            $cache->set($key, $data, intval($_ENV['cache_time'])*60, $dep);
         }
 
         return $data;

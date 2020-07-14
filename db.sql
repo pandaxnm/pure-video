@@ -1,5 +1,33 @@
-# Dump of table video
-# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `banner`;
+
+CREATE TABLE `banner` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `url` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `video_id` int(11) NOT NULL,
+  `created_at` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `navi`;
+
+CREATE TABLE `navi` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `sort` int(11) DEFAULT '99',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP TABLE IF EXISTS `node`;
+
+CREATE TABLE `node` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `navi_id` int(11) DEFAULT '0',
+  `name` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `sort` int(11) DEFAULT '99',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `video`;
 
@@ -28,16 +56,12 @@ CREATE TABLE `video` (
   `source` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '',
   `note` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT '' COMMENT '备注',
   `search_count` int(11) DEFAULT '0' COMMENT '搜索次数',
+  `node_id` int(11) DEFAULT '0',
   PRIMARY KEY (`id`),
-  KEY `title` (`title`),
+  KEY `title` (`title`(250)),
   KEY `updated_at` (`updated_at`),
   KEY `views` (`views`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-
-# Dump of table video_list
-# ------------------------------------------------------------
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 DROP TABLE IF EXISTS `video_list`;
 
@@ -54,5 +78,5 @@ CREATE TABLE `video_list` (
   `xianlu` text COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`id`),
   KEY `video_id` (`video_id`),
-  KEY `list_num` (`list_num`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  KEY `list_num` (`list_num`(250))
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
